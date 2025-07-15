@@ -78,7 +78,7 @@ export default function BigTable({
     <>
       <ScrollArea
         id='big-table'
-        className={`${className} w-full overflow-auto pr-4 relative`}
+        className={`${className} w-full overflow-auto relative`}
       >
 
         <table className='w-full h-full border-collapse'>

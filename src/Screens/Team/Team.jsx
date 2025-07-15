@@ -17,6 +17,8 @@ import useAxiosPrivate from '@/hooks/useAxiosPrivate'
 import { Ban } from 'lucide-react'
 import { adminFormat } from '@/Helpers/adminFormat'
 import { roleColors } from '@/Helpers/roles'
+import { useIsMobile } from '@/hooks/use-mobile'
+import { useEffect } from 'react'
 
 const defaultVal = {
   firstName: '',
@@ -27,6 +29,7 @@ const defaultVal = {
 
 export default function Team() {
 
+  const isMobile = useIsMobile()
   const axiosPrivate = useAxiosPrivate()
   const { data, isLoading, isRefetching, isError, refetch } = useQuery({
 
@@ -40,9 +43,10 @@ export default function Team() {
   // Local State
   const [open, setOpen] = useState()
   const [initialValue, setInitialValue] = useState(defaultVal)
+  const [columns, setColumns] = useState([])
 
 
-  const columns = [
+  const columnsBase = [
     {
       header: 'Nombre',
       accessorKey: 'firstName',
@@ -64,8 +68,9 @@ export default function Team() {
       header: 'Rol',
       accessorKey: 'publicMetadata.role',
       enableSorting: false,
+      size: 100,
       cell: ({ getValue }) => (
-        <span className={`${roleColors[getValue()]} px-3 rounded-full text-white`}>
+        <span className={`${roleColors[getValue()]} px-2 rounded-full text-white font-bold text-sm`}>
           {adminFormat(getValue())}
         </span>
       )
@@ -87,6 +92,14 @@ export default function Team() {
       )
     }
   ]
+
+  useEffect(() => {
+    if (isMobile) {
+      const removeColumns = ['firstName', 'lastName', 'publicMetadata.role']
+      const newColumns = columnsBase.filter(col => !removeColumns.includes(col.accessorKey))
+      setColumns(newColumns)
+    } else setColumns(columnsBase)
+  }, [isMobile])
 
   // Methods
   const modifyUser = (original) => {
@@ -122,7 +135,7 @@ export default function Team() {
         </DialogContent>
       </header>
 
-      <div className='flex w-full lg:w-[70%] mx-auto overflow-hidden mt-20'>
+      <div className='flex w-full  mx-auto overflow-hidden mt-20'>
         {
           isError &&
           <div className='w-full flex flex-col items-center justify-center gap-2.5 mt-10'>

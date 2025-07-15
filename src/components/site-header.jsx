@@ -2,6 +2,7 @@ import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { useUser } from '@clerk/clerk-react'
 import { adminFormat } from '@/Helpers/adminFormat'
+import { roleColors } from '@/Helpers/roles'
 
 export function SiteHeader() {
   const { isLoaded, user } = useUser()
@@ -16,7 +17,7 @@ export function SiteHeader() {
         />
         <h1 className='text-base font-medium'>
           {isLoaded
-            ? `${user.fullName}: ${adminFormat(user.publicMetadata?.role)}`
+            ? <>{user.fullName}: <span className={`px-2 rounded-3xl text-sm ${roleColors[user.publicMetadata?.role]}`}>{adminFormat(user.publicMetadata?.role)}</span></>
             : 'Cargando...'
           }
         </h1>
