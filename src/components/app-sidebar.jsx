@@ -128,14 +128,16 @@ export function AppSidebar({ ...props }) {
         <NavSecondary items={data.navSecondary} className='mt-auto' />
       </SidebarContent>
       <SidebarFooter>
-        <div className='flex gap-3 my-2'>
-          <UserButton
-            userProfileMode='modal'
-            appearance={theme === 'dark' ? dark : {}}
-            userProfileProps={{
-              appearance: theme === 'dark' ? dark : {}
-            }}
-          />
+        <div className='flex gap-3 my-2 items-center'>
+          <div className='grid place-content-center w-[28px] h-[28px]'>
+            <UserButton
+              userProfileMode='modal'
+              appearance={theme === 'dark' ? dark : {}}
+              userProfileProps={{
+                appearance: theme === 'dark' ? dark : {}
+              }}
+            />
+          </div>
 
           <div className='grid flex-1 text-left text-sm leading-tight'>
             <span className='truncate font-medium'>{userObj.name}</span>
