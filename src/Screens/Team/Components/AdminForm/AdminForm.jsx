@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button'
 import { formSchema } from './Schema'
 import { ROLE_ADMIN, ROLE_USER } from '@/Helpers/roles'
 import { useMutation } from '@tanstack/react-query'
-import useAxiosPrivate from '@/Hooks/useAxiosPrivate'
+import useAxiosPrivate from '@/hooks/useAxiosPrivate'
 import { Loader } from 'lucide-react'
 
 export default function AdminForm({ initialVal, setOpen, refetch }) {
