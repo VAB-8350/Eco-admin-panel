@@ -5,7 +5,7 @@ import { IconCaretUpDown, IconCaretDown, IconCaretUp, IconListDetails } from '@t
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 // Internal modules
-import useIntersectionObserve from '@/Hooks/useIntersectionObserve'
+import useIntersectionObserve from '@/hooks/useIntersectionObserve'
 
 // Components
 
