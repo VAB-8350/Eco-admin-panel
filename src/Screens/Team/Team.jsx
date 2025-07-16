@@ -8,8 +8,9 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
-import { Pencil, Trash2, UserRoundX, UsersRound } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
+import { Pencil, UserRoundX, UsersRound, UserRoundPlus, Check, X } from 'lucide-react'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 import AdminForm from './Components/AdminForm/AdminForm'
 import BigTable from '@/components/MyComponents/BigTable'
@@ -18,7 +19,8 @@ import { adminFormat } from '@/Helpers/adminFormat'
 import { roleColors } from '@/Helpers/roles'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useEffect } from 'react'
-import ErrorMessage from '../../components/MyComponents/ErrorMessage'
+import ErrorMessage from '@/components/MyComponents/ErrorMessage'
+import SimpleToast from '@/components/MyComponents/SimpleToast'
 
 const defaultVal = {
   firstName: '',
@@ -38,6 +40,26 @@ export default function Team() {
       const { data } = await axiosPrivate.get('/users')
       return data
     },
+  })
+
+  const banMutation = useMutation({
+    mutationFn: async (clerkId) => {
+      try {
+        return await axiosPrivate.post(`/api/users/${clerkId}/ban`)
+      } catch {
+        return false
+      }
+    }
+  })
+
+  const unbanMutation = useMutation({
+    mutationFn: async (clerkId) => {
+      try {
+        return await axiosPrivate.post(`/api/users/${clerkId}/unban`)
+      } catch {
+        return false
+      }
+    }
   })
 
   // Local State
@@ -82,25 +104,36 @@ export default function Team() {
       size: 55,
       cell: ({ row: { original } }) => (
         <div className='flex items-center gap-4 justify-end'>
-          <button className='hover:text-blue-500 duration-300 outline-none' onClick={() => modifyUser(original)}>
-            <Pencil width={17} height={17} />
-          </button>
+          {
+            !showBans
+              ?
+              <>
+                <button className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' onClick={() => modifyUser(original)}>
+                  <Pencil width={17} height={17} />
+                </button>
 
-          <button className='text-red-500 outline-none hover:opacity-50 duration-300' onClick={() => console.log('delete:', original.id)}>
-            <Trash2 width={17} height={17} />
-          </button>
+                <button className='text-red-500 outline-none hover:opacity-50 duration-300 hover:cursor-pointer p-1' onClick={() => banUser(original)}>
+                  <UserRoundX width={17} height={17} />
+                </button>
+              </>
+              :
+              <button className='hover:text-green-500 duration-300 outline-none hover:cursor-pointer p-1' onClick={() => unbanUser(original)}>
+                <UserRoundPlus width={17} height={17} />
+              </button>
+          }
         </div>
       )
     }
   ]
 
+  // Effects
   useEffect(() => {
     if (isMobile) {
       const removeColumns = ['firstName', 'lastName', 'publicMetadata.role']
       const newColumns = columnsBase.filter(col => !removeColumns.includes(col.accessorKey))
       setColumns(newColumns)
     } else setColumns(columnsBase)
-  }, [isMobile])
+  }, [isMobile, showBans])
 
   // Methods
   const modifyUser = (original) => {
@@ -116,13 +149,45 @@ export default function Team() {
     setOpen(true)
   }
 
+  const banUser = async (user) => {
+    const confirm = window.confirm(`Seguro que deseas banear al usuario ${user.firstName} ${user.lastName}?`)
+    
+    if (confirm) {
+      const res = await banMutation.mutateAsync(user.clerkId)
+      
+      if (!res) {
+        toast(<SimpleToast message='Ups! Ocurrio un error...' state='error' />)
+        return
+      }
+
+      toast(<SimpleToast message='Usuario banneado!' state='success' />)
+      refetch()
+    }
+  }
+
+  const unbanUser = async (user) => {
+    const confirm = window.confirm(`Seguro que deseas banear al usuario ${user.firstName} ${user.lastName}?`)
+    
+    if (confirm) {
+      const res = await unbanMutation.mutateAsync(user.clerkId)
+
+      if (!res) {
+        toast(<SimpleToast message='Ups! Ocurrio un error...' state='error' />)
+        return
+      }
+
+      toast(<SimpleToast message='Usuario Desbaneado!' state='success' />)
+      refetch()
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <header className='flex justify-between items-center'>
+      <header className='flex justify-between items-center flex-col lg:flex-row gap-5'>
         <h1 className='text-4xl font-bold'>Equipo</h1>
         <div className='flex items-center gap-2'>
           {
-            // data?.length > 0 &&
+            data?.some(usr => usr.banned === true) &&
             (
               showBans
                 ? <Button disabled={isLoading} onClick={() => setShowBans(false)} variant='outline'><UsersRound className='stroke-green-500 dark:stroke-green-400' />Equipo</Button>
@@ -147,7 +212,7 @@ export default function Team() {
         </DialogContent>
       </header>
 
-      <div className='flex w-full  mx-auto overflow-hidden mt-20'>
+      <div className='flex w-full  mx-auto overflow-hidden mt-5 lg:mt-20'>
         {
           isError && <ErrorMessage message={error.message} />
         }
@@ -156,7 +221,7 @@ export default function Team() {
           <BigTable
             className='max-h-[500px]'
             columns={columns}
-            data={data}
+            data={data?.filter(usr => usr.banned === showBans)}
             isLoading={isLoading || isRefetching}
             hoverRow
             // enableLazyLoad={!isRefetching && hasNextPage}

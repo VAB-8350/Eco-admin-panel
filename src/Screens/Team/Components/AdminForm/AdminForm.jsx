@@ -23,6 +23,8 @@ import { ROLE_ADMIN, ROLE_USER } from '@/Helpers/roles'
 import { useMutation } from '@tanstack/react-query'
 import useAxiosPrivate from '@/hooks/useAxiosPrivate'
 import { Loader } from 'lucide-react'
+import { toast } from 'sonner'
+import SimpleToast from '@/components/MyComponents/SimpleToast'
 
 export default function AdminForm({ initialVal, setOpen, refetch }) {
 
@@ -54,8 +56,7 @@ export default function AdminForm({ initialVal, setOpen, refetch }) {
   // Methods
   const onSubmit = async (data) => {
 
-    const isNewUser = !!initialVal.id
-    console.log(initialVal)
+    const isNewUser = !initialVal.id
     
     const body = {
       first_name: data.firstName !== initialVal.firstName ? data.firstName : undefined,
@@ -64,7 +65,11 @@ export default function AdminForm({ initialVal, setOpen, refetch }) {
       public_metadata: data.role !== initialVal.role ? { role: data.role } : undefined,
     }
 
-    if (isNewUser) await modifyUserMutation.mutateAsync({ data: body, clerkId: initialVal.id })
+    if (!isNewUser) {
+      await modifyUserMutation.mutateAsync({ data: body, clerkId: initialVal.id })
+      toast(<SimpleToast message='Usuario Modificado!' state={true} />)
+    }
+
     else await createUserMutation.mutateAsync(body)
 
     setTimeout(() => {

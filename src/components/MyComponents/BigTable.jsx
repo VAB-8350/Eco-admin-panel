@@ -78,109 +78,112 @@ export default function BigTable({
 
   return (
     <>
-      <ScrollArea
-        id='big-table'
-        className={`${className} w-full overflow-auto relative`}
-      >
+      {
+        data.length > 0 &&
+        <ScrollArea
+          id='big-table'
+          className={`${className} w-full overflow-auto relative`}
+        >
 
-        <table className='w-full h-full border-collapse'>
+          <table className='w-full h-full border-collapse'>
 
-          {/* head */}
-          <thead className='sticky top-0 bg-[var(--background)]/50 backdrop-blur-2xl z-10'>
-            {
-              table.getHeaderGroups().map(group => (
-                // header row
-                <tr key={group.id}>
+            {/* head */}
+            <thead className='sticky top-0 bg-[var(--background)]/50 backdrop-blur-2xl z-10'>
+              {
+                table.getHeaderGroups().map(group => (
+                  // header row
+                  <tr key={group.id}>
 
-                  {
-                    group.headers.map(header => (
-                      // header cell
-                      <th
-                        className={`
-                          text-left text-sm h-full relative p-2
-                          ${header.column.columnDef.enableSorting !== false ? 'sortable' : ''}
+                    {
+                      group.headers.map(header => (
+                        // header cell
+                        <th
+                          className={`
+                            text-left text-sm h-full relative p-2
+                            ${header.column.columnDef.enableSorting !== false ? 'sortable' : ''}
 
-                        `}
-                        key={header.id}
-                        onClick={header.column.getToggleSortingHandler()}
-                        style={{
-                          maxWidth: header.column.columnDef.maxSize,
-                          minWidth: (header.column.columnDef.size !== 50 ? header.column.columnDef.size : header.column.columnDef.minSize),
-                          width: (header.column.columnDef.size !== 50 ? header.column.columnDef.size : 'auto')
-                        }}
-                      >
-                        <span className='inline-block w-full whitespace-nowrap overflow-hidden text-ellipsis'>
-                          {/* sort icons */}
-                          {
-                            header.column.columnDef.enableSorting !== false &&
-                            <>
-                              {header.column.getIsSorted() === false && <IconCaretUpDown fill='currentColor' />}
-                              {(header.column.getIsSorted() === 'asc') && <IconCaretUp className='up' fill='currentColor' />}
-                              {(header.column.getIsSorted() === 'desc') && <IconCaretDown className='down' fill='currentColor' />}
-                            </>
-                          }
+                          `}
+                          key={header.id}
+                          onClick={header.column.getToggleSortingHandler()}
+                          style={{
+                            maxWidth: header.column.columnDef.maxSize,
+                            minWidth: (header.column.columnDef.size !== 50 ? header.column.columnDef.size : header.column.columnDef.minSize),
+                            width: (header.column.columnDef.size !== 50 ? header.column.columnDef.size : 'auto')
+                          }}
+                        >
+                          <span className='inline-block w-full whitespace-nowrap overflow-hidden text-ellipsis'>
+                            {/* sort icons */}
+                            {
+                              header.column.columnDef.enableSorting !== false &&
+                              <>
+                                {header.column.getIsSorted() === false && <IconCaretUpDown fill='currentColor' />}
+                                {(header.column.getIsSorted() === 'asc') && <IconCaretUp className='up' fill='currentColor' />}
+                                {(header.column.getIsSorted() === 'desc') && <IconCaretDown className='down' fill='currentColor' />}
+                              </>
+                            }
 
-                          {/* head name */}
-                          {flexRender(header.column.columnDef.header, header.getContext())}
-                        </span>
-                      </th>
-                    ))
-                  }
+                            {/* head name */}
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                          </span>
+                        </th>
+                      ))
+                    }
 
-                </tr>
-              ))
-            }
-          </thead>
+                  </tr>
+                ))
+              }
+            </thead>
 
-          {/* body */}
-          <tbody>
-            {
-              table.getRowModel().rows.map(row => (
-                // body row
-                <tr
-                  key={row.id}
-                  className={`
-                    border-b border-[--border] hover:bg-[#f9f9f9] hover:dark:bg-[#181818]
-                    ${addStatusColors ? `status-${row.original.status}` : ''}
-                    ${hoverRow ? 'hover-row-active' : ''}
-                  `}
-                >
-                  {
-                    row.getVisibleCells().map(cell => (
-                      // body cell
-                      <td
-                        className='text-left text-sm h-full relative p-3'
-                        key={cell.id}
-                        style={{
-                          maxWidth: (cell.column.columnDef.size !== 150 ? cell.column.columnDef.size : 'auto')
-                        }}
-                      >
-                        <span className='flex w-full whitespace-nowrap overflow-hidden text-ellipsis'>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </span>
-                      </td>
-                    ))
-                  }
-                </tr>
-              ))
-            }
-          </tbody>
+            {/* body */}
+            <tbody>
+              {
+                table.getRowModel().rows.map(row => (
+                  // body row
+                  <tr
+                    key={row.id}
+                    className={`
+                      border-b border-[--border] hover:bg-[#f9f9f9] hover:dark:bg-[#181818]
+                      ${addStatusColors ? `status-${row.original.status}` : ''}
+                      ${hoverRow ? 'hover-row-active' : ''}
+                    `}
+                  >
+                    {
+                      row.getVisibleCells().map(cell => (
+                        // body cell
+                        <td
+                          className='text-left text-sm h-full relative p-3'
+                          key={cell.id}
+                          style={{
+                            maxWidth: (cell.column.columnDef.size !== 150 ? cell.column.columnDef.size : 'auto')
+                          }}
+                        >
+                          <span className='flex w-full whitespace-nowrap overflow-hidden text-ellipsis'>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </span>
+                        </td>
+                      ))
+                    }
+                  </tr>
+                ))
+              }
+            </tbody>
 
-        </table>
+          </table>
 
-        <span className='inline-block w-full h-[70px] bg-[var(--background)]' />
-        <span className='absolute bottom-0 left-0 inline-block w-full h-[100px] bg-linear-to-b from-transparent to-[var(--background)]' />
+          <span className='inline-block w-full h-[70px] bg-[var(--background)]' />
+          <span className='absolute bottom-0 left-0 inline-block w-full h-[100px] bg-linear-to-b from-transparent to-[var(--background)]' />
 
-        {
-          enableLazyLoad &&
-          <div ref={observerRef} id='lazy-table' className='intersection-observer-lazy'>
-            {
-              loadingLazyLoad &&
-              <h2>Cargando...</h2>
-            }
-          </div>
-        }
-      </ScrollArea>
+          {
+            enableLazyLoad &&
+            <div ref={observerRef} id='lazy-table' className='intersection-observer-lazy'>
+              {
+                loadingLazyLoad &&
+                <h2>Cargando...</h2>
+              }
+            </div>
+          }
+        </ScrollArea>
+      }
 
       {/* empty state */}
       {
