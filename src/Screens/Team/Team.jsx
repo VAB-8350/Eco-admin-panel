@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
-import { Pencil, Trash2, UserRoundX, Ban, UserRound } from 'lucide-react'
+import { Pencil, Trash2, UserRoundX, UserRound } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 
 import AdminForm from './Components/AdminForm/AdminForm'
@@ -18,6 +18,7 @@ import { adminFormat } from '@/Helpers/adminFormat'
 import { roleColors } from '@/Helpers/roles'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useEffect } from 'react'
+import ErrorMessage from '../../components/MyComponents/ErrorMessage'
 
 const defaultVal = {
   firstName: '',
@@ -30,7 +31,7 @@ export default function Team() {
 
   const isMobile = useIsMobile()
   const axiosPrivate = useAxiosPrivate()
-  const { data, isLoading, isRefetching, isError, refetch } = useQuery({
+  const { data, isLoading, isRefetching, isError, refetch, error } = useQuery({
 
     queryKey: ['users'],
     queryFn: async () => {
@@ -148,11 +149,7 @@ export default function Team() {
 
       <div className='flex w-full  mx-auto overflow-hidden mt-20'>
         {
-          isError &&
-          <div className='w-full flex flex-col items-center justify-center gap-2.5 mt-10'>
-            <Ban className='w-10 h-10' />
-            <h3 className='text-xl'>Ups! Hubo un error al cargar los datos...</h3>
-          </div>
+          isError && <ErrorMessage message={error.message} />
         }
         {
           !isError &&
