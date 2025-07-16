@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
-import { Pencil, Trash2, UserRoundX, UserRound } from 'lucide-react'
+import { Pencil, Trash2, UserRoundX, UsersRound } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 
 import AdminForm from './Components/AdminForm/AdminForm'
@@ -125,7 +125,7 @@ export default function Team() {
             // data?.length > 0 &&
             (
               showBans
-                ? <Button disabled={isLoading} onClick={() => setShowBans(false)} variant='outline'><UserRound className='fill-green-500 dark:fill-green-400' />Equipo</Button>
+                ? <Button disabled={isLoading} onClick={() => setShowBans(false)} variant='outline'><UsersRound className='stroke-green-500 dark:stroke-green-400' />Equipo</Button>
                 : <Button disabled={isLoading} onClick={() => setShowBans(true)} variant='outline'><UserRoundX className='stroke-red-500 dark:stroke-red-400' />Baneados</Button>
             )
           }
