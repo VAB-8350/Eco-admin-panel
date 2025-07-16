@@ -67,7 +67,7 @@ export default function AdminForm({ initialVal, setOpen, refetch }) {
 
     if (!isNewUser) {
       await modifyUserMutation.mutateAsync({ data: body, clerkId: initialVal.id })
-      toast(<SimpleToast message='Usuario Modificado!' state={true} />)
+      toast(<SimpleToast message='Usuario Modificado!' state='success' />)
     }
 
     else await createUserMutation.mutateAsync(body)
