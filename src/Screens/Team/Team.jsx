@@ -135,6 +135,10 @@ export default function Team() {
     } else setColumns(columnsBase)
   }, [isMobile, showBans])
 
+  useEffect(() => {
+    if (!data?.some(usr => usr.banned === true) && showBans) setShowBans(false)
+  }, [data])
+
   // Methods
   const modifyUser = (original) => {
 
@@ -166,7 +170,7 @@ export default function Team() {
   }
 
   const unbanUser = async (user) => {
-    const confirm = window.confirm(`Seguro que deseas banear al usuario ${user.firstName} ${user.lastName}?`)
+    const confirm = window.confirm(`Seguro que reactivar el usuario ${user.firstName} ${user.lastName}?`)
     
     if (confirm) {
       const res = await unbanMutation.mutateAsync(user.clerkId)
@@ -176,7 +180,7 @@ export default function Team() {
         return
       }
 
-      toast(<SimpleToast message='Usuario Desbaneado!' state='success' />)
+      toast(<SimpleToast message='Usuario reactivado!' state='success' />)
       refetch()
     }
   }
@@ -184,7 +188,8 @@ export default function Team() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <header className='flex justify-between items-center flex-col lg:flex-row gap-5'>
-        <h1 className='text-4xl font-bold'>Equipo</h1>
+        <h1 className='text-4xl font-bold'>{showBans ? 'Baneados' : 'Equipo'}</h1>
+
         <div className='flex items-center gap-2'>
           {
             data?.some(usr => usr.banned === true) &&
