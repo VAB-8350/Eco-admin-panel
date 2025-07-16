@@ -1,9 +1,8 @@
 // External modules
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
-import RequireAuth from '@/components/MyComponents/RequireAuth'
 import Layout from '@/Layouts/Layout'
-import { useUser } from '@clerk/clerk-react'
+import { useUser, SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react'
 
 // Internal modules
 import { publicRoutes, privateRoutes } from '@/Router/routes'
@@ -38,9 +37,12 @@ export default function Router() {
                 path={route.path}
                 element={
                   <Layout>
-                    <RequireAuth roles={route.roles}>
+                    <SignedIn>
                       <route.component />
-                    </RequireAuth>
+                    </SignedIn>
+                    <SignedOut>
+                      <RedirectToSignIn redirectUrl='/' />
+                    </SignedOut>
                   </Layout>
                 }
               />

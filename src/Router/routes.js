@@ -40,7 +40,7 @@ const privateRoutes = [
     path: '/team',
     label: 'Team',
     component: Team,
-    roles: [ROLE_ADMIN, ROLE_USER]
+    roles: [ROLE_ADMIN]
   }
 ]
 

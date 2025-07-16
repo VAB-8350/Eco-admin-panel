@@ -3,6 +3,7 @@ import React from 'react'
 import { useReactTable, getCoreRowModel, flexRender, getSortedRowModel } from '@tanstack/react-table'
 import { IconCaretUpDown, IconCaretDown, IconCaretUp, IconListDetails } from '@tabler/icons-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 // Internal modules
 import useIntersectionObserve from '@/hooks/useIntersectionObserve'
@@ -26,6 +27,7 @@ export default function BigTable({
   const [sorting, setSorting] = React.useState([])
   const [selectedRowsLocal, setSelectedRowsLocal] = React.useState({})
 
+  const isMobile = useIsMobile()
   const { observerRef, resetObserver } = useIntersectionObserve({ containerId: 'big-table', handlerIntersection: handleLazyLoad })
   const table = useReactTable({
     data,
@@ -51,18 +53,18 @@ export default function BigTable({
   if (isLoading) {
 
     const rows = Array(3).fill(0)
-    const columns = Array(5).fill(0)
+    const columns = Array(isMobile ? 3 : 5).fill(0)
 
     return (
       <div className='hover:cursor-wite w-full '>
-        <div className='grid grid-cols-5 items-center justify-start gap-3 py-4 px-12'>
+        <div className={`grid ${isMobile ? 'grid-cols-3' : 'grid-cols-5'} items-center justify-start gap-3 py-4 px-12`}>
           {columns.map((_, i) => (
             <span key={i} style={{ width: `${Math.floor(Math.random() * (90 - 30 + 1)) + 30}%` }} className='inline-block rounded-[100px] h-3 animate-pulse bg-[var(--primary)]/50' />
           ))}
         </div>
         <div >
           {rows.map((_, i) => (
-            <div key={i} className='grid grid-cols-5 items-center justify-start gap-3 py-2 px-12'>
+            <div key={i} className={`grid ${isMobile ? 'grid-cols-3' : 'grid-cols-5'} items-center justify-start gap-3 py-2 px-12`}>
               {columns.map((_, j) => (
                 <span key={j} style={{ width: `${Math.floor(Math.random() * (90 - 30 + 1)) + 30}%` }} className='inline-block rounded-[100px] h-2 animate-pulse bg-[var(--primary)]/20' />
               ))}

@@ -17,7 +17,10 @@ export function SiteHeader() {
         />
         <h1 className='text-base font-medium'>
           {isLoaded
-            ? <>{user.fullName}: <span className={`px-2 rounded-3xl text-sm ${roleColors[user.publicMetadata?.role]}`}>{adminFormat(user.publicMetadata?.role)}</span></>
+            ? 
+            <span className={`px-2 py-[1px] rounded-3xl text-xs text-white ${roleColors[user.publicMetadata?.role]}`}>
+              {adminFormat(user.publicMetadata?.role)}
+            </span>
             : 'Cargando...'
           }
         </h1>

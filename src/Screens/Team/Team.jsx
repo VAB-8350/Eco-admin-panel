@@ -8,13 +8,12 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2, UserRoundX, Ban, UserRound } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 
 import AdminForm from './Components/AdminForm/AdminForm'
 import BigTable from '@/components/MyComponents/BigTable'
 import useAxiosPrivate from '@/hooks/useAxiosPrivate'
-import { Ban } from 'lucide-react'
 import { adminFormat } from '@/Helpers/adminFormat'
 import { roleColors } from '@/Helpers/roles'
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -42,6 +41,7 @@ export default function Team() {
 
   // Local State
   const [open, setOpen] = useState()
+  const [showBans, setShowBans] = useState(false)
   const [initialValue, setInitialValue] = useState(defaultVal)
   const [columns, setColumns] = useState([])
 
@@ -118,10 +118,21 @@ export default function Team() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <header className='flex justify-between items-center'>
-        <h1 className='text-4xl font-bold'>Teams</h1>
-        <DialogTrigger asChild>
-          <Button className='font-bold' onClick={() => setInitialValue(defaultVal)}>Agregar un admin</Button>
-        </DialogTrigger>
+        <h1 className='text-4xl font-bold'>Equipo</h1>
+        <div className='flex items-center gap-2'>
+          {
+            // data?.length > 0 &&
+            (
+              showBans
+                ? <Button disabled={isLoading} onClick={() => setShowBans(false)} variant='outline'><UserRound className='fill-green-500 dark:fill-green-400' />Equipo</Button>
+                : <Button disabled={isLoading} onClick={() => setShowBans(true)} variant='outline'><UserRoundX className='stroke-red-500 dark:stroke-red-400' />Baneados</Button>
+            )
+          }
+
+          <DialogTrigger asChild>
+            <Button className='font-bold' onClick={() => setInitialValue(defaultVal)}>Agregar un admin</Button>
+          </DialogTrigger>
+        </div>
 
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>

@@ -100,6 +100,7 @@ export function AppSidebar({ ...props }) {
 
   const userObj = {
     name: user?.firstName,
+    lastName: user.lastName,
     email: user?.emailAddresses[0]?.emailAddress,
   }
 
@@ -114,7 +115,7 @@ export function AppSidebar({ ...props }) {
             >
               <a href='#'>
                 <img src='/logo-eco-100w.png' alt='company logo' className='h-6 object-contain' />
-                <span className='text-base font-semibold'>Eco Panel</span>
+                <span className='text-base font-semibold'>Panel</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -140,7 +141,7 @@ export function AppSidebar({ ...props }) {
           </div>
 
           <div className='grid flex-1 text-left text-sm leading-tight'>
-            <span className='truncate font-medium'>{userObj.name}</span>
+            <span className='truncate font-medium'>{userObj.name} {userObj.lastName}</span>
             <span className='text-muted-foreground truncate text-xs'>
               {userObj.email}
             </span>
