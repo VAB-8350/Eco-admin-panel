@@ -45,7 +45,7 @@ export default function Team() {
   const banMutation = useMutation({
     mutationFn: async (clerkId) => {
       try {
-        return await axiosPrivate.post(`/api/users/${clerkId}/ban`)
+        return await axiosPrivate.post(`/users/${clerkId}/ban`)
       } catch {
         return false
       }
@@ -55,7 +55,7 @@ export default function Team() {
   const unbanMutation = useMutation({
     mutationFn: async (clerkId) => {
       try {
-        return await axiosPrivate.post(`/api/users/${clerkId}/unban`)
+        return await axiosPrivate.post(`/users/${clerkId}/unban`)
       } catch {
         return false
       }
