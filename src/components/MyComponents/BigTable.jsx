@@ -79,7 +79,7 @@ export default function BigTable({
   return (
     <>
       {
-        data.length > 0 &&
+        data?.length > 0 &&
         <ScrollArea
           id='big-table'
           className={`${className} w-full overflow-auto relative`}
