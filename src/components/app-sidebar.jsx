@@ -75,7 +75,7 @@ const data = {
   navClient: [
     {
       name: 'Clientes',
-      url: '#',
+      url: '/clients',
       icon: UserRoundSearch,
     },
     {

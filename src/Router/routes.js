@@ -14,6 +14,7 @@ const Login = React.lazy(() => import('@/Screens/Login/Login'))
 const Dashboard = React.lazy(() => import('@/Screens/Dashboard/Dashboard'))
 const Sales     = React.lazy(() => import('@/Screens/Sales/Sales'))
 const Team      = React.lazy(() => import('@/Screens/Team/Team'))
+const Client    = React.lazy(() => import('@/Screens/Clients/Clients'))
 
 const publicRoutes = [
   {
@@ -41,6 +42,12 @@ const privateRoutes = [
     label: 'Team',
     component: Team,
     roles: [ROLE_ADMIN]
+  },
+  {
+    path: '/clients',
+    label: 'Client',
+    component: Client,
+    roles: [ROLE_ADMIN, ROLE_USER]
   }
 ]
 
