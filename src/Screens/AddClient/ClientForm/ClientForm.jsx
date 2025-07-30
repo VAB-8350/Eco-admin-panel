@@ -231,7 +231,7 @@ export default function ClientForm({ setOpen }) {
         </form>
       </Form>
 
-      <section>
+      <section className='my-10 border-t border-b border-[var(--border)]'>
         <header className='flex justify-between items-center my-5'>
           <h3 className='text-2xl font-bold'>Direcciones</h3>
 
@@ -254,7 +254,7 @@ export default function ClientForm({ setOpen }) {
           <AddAddress submit={addAddress} />
         </DialogContent>
 
-        <div className='grid grid-cols-3 gap-2'>
+        <div className='grid grid-cols-3 gap-2 mb-10'>
           
           {
             addresses?.map((address, i) => (
@@ -281,7 +281,7 @@ export default function ClientForm({ setOpen }) {
       </section>
       
       <div className='w-full flex justify-end'>
-        <Button type='submit' className='font-bold w-fit mt-10' disabled={isSubmitting} form='client-form'>
+        <Button type='submit' className='font-bold w-fit' disabled={isSubmitting} form='client-form'>
           Cargar Cliente
         </Button>
       </div>
