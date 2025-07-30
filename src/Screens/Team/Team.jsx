@@ -99,7 +99,7 @@ export default function Team() {
       )
     },
     {
-      header: 'Accion',
+      header: 'Acciones',
       enableSorting: false,
       size: 55,
       cell: ({ row: { original } }) => (

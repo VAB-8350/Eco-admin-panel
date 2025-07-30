@@ -1,7 +1,7 @@
 import BigTable from '@/components/MyComponents/BigTable'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Search, Plus } from 'lucide-react'
+import { Search, Plus, Pencil, UserRoundX } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function Clients() {
@@ -9,7 +9,7 @@ export default function Clients() {
   const columns = [
     {
       header: 'Nombre',
-      accessorKey: 'firstName',
+      accessorKey: 'name',
       enableSorting: false,
     },
     {
@@ -18,129 +18,88 @@ export default function Clients() {
       enableSorting: false,
     },
     {
-      header: 'email',
+      header: 'Email',
       accessorKey: 'email',
       enableSorting: false,
     },
     {
-      header: 'Ultima compra',
-      accessorKey: 'lastBuy',
+      header: 'DNI',
+      accessorKey: 'DNI',
       enableSorting: false,
+      size: 100,
     },
     {
-      header: 'Gastado el ultimo año',
-      accessorKey: 'pay',
+      header: 'Phone',
+      accessorKey: 'phone',
       enableSorting: false,
+      size: 100,
+      cell: ({ row: { original } }) => (
+        <p>{original.phones.find(p => p.primary).number}</p>
+      )
+    },
+    {
+      header: 'Acciones',
+      enableSorting: false,
+      size: 55,
+      cell: ({ row: { original } }) => (
+        <div className='flex items-center gap-4 justify-end'>
+          <Link className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' to={`/edit-client/${original.id}`}>
+            <Pencil width={17} height={17} />
+          </Link>
+
+          <button className='text-red-500 outline-none hover:opacity-50 duration-300 hover:cursor-pointer p-1' onClick={() => removeClient(original)}>
+            <UserRoundX width={17} height={17} />
+          </button>
+        </div>
+      )
     }
   ]
 
   const data = [
     {
-      firstName: 'Andres',
+      id: '123asdf123',
+      name: 'Andres',
       lastName: 'Barilin',
+      Email: '41815998',
+      DNI: '41815998',
       email: 'algo@algol.com',
-      lastBuy: '12 jul 2024',
-      pay: '$123.456'
-    },
-    {
-      firstName: 'Andres',
-      lastName: 'Barilin',
-      email: 'algo@algol.com',
-      lastBuy: '12 jul 2024',
-      pay: '$123.456'
-    },
-    {
-      firstName: 'Andres',
-      lastName: 'Barilin',
-      email: 'algo@algol.com',
-      lastBuy: '12 jul 2024',
-      pay: '$123.456'
-    },
-    {
-      firstName: 'Andres',
-      lastName: 'Barilin',
-      email: 'algo@algol.com',
-      lastBuy: '12 jul 2024',
-      pay: '$123.456'
-    },
-    {
-      firstName: 'Andres',
-      lastName: 'Barilin',
-      email: 'algo@algol.com',
-      lastBuy: '12 jul 2024',
-      pay: '$123.456'
-    },
-    {
-      firstName: 'Andres',
-      lastName: 'Barilin',
-      email: 'algo@algol.com',
-      lastBuy: '12 jul 2024',
-      pay: '$123.456'
-    },
-    {
-      firstName: 'Andres',
-      lastName: 'Barilin',
-      email: 'algo@algol.com',
-      lastBuy: '12 jul 2024',
-      pay: '$123.456'
-    },
-    {
-      firstName: 'Andres',
-      lastName: 'Barilin',
-      email: 'algo@algol.com',
-      lastBuy: '12 jul 2024',
-      pay: '$123.456'
-    },
-    {
-      firstName: 'Andres',
-      lastName: 'Barilin',
-      email: 'algo@algol.com',
-      lastBuy: '12 jul 2024',
-      pay: '$123.456'
-    },
-    {
-      firstName: 'Andres',
-      lastName: 'Barilin',
-      email: 'algo@algol.com',
-      lastBuy: '12 jul 2024',
-      pay: '$123.456'
-    },
-    {
-      firstName: 'Andres',
-      lastName: 'Barilin',
-      email: 'algo@algol.com',
-      lastBuy: '12 jul 2024',
-      pay: '$123.456'
-    },
-    {
-      firstName: 'Andres',
-      lastName: 'Barilin',
-      email: 'algo@algol.com',
-      lastBuy: '12 jul 2024',
-      pay: '$123.456'
-    },
-    {
-      firstName: 'Andres',
-      lastName: 'Barilin',
-      email: 'algo@algol.com',
-      lastBuy: '12 jul 2024',
-      pay: '$123.456'
-    },
-    {
-      firstName: 'Andres',
-      lastName: 'Barilin',
-      email: 'algo@algol.com',
-      lastBuy: '12 jul 2024',
-      pay: '$123.456'
-    },
-    {
-      firstName: 'Andres',
-      lastName: 'Barilin',
-      email: 'algo@algol.com',
-      lastBuy: '12 jul 2024',
-      pay: '$123.456'
-    },
+      phones: [
+        {
+          number: '123123123',
+          primary: true
+        },
+        {
+          number: '123123123',
+          primary: false
+        }
+      ],
+      note: 'algo que va en la nota',
+      addresses: [
+        {
+          name: 'Casa',
+          address: 'asdf 123',
+          country: 'argentina',
+          region: 'cordoba',
+          city: 'Rio Cuarto',
+          zip: '1234'
+        },
+        {
+          name: 'Casa',
+          address: 'asdf 123',
+          country: 'argentina',
+          region: 'cordoba',
+          city: 'Rio Cuarto',
+          zip: '1234'
+        }
+      ]
+    }
   ]
+
+  // Methods
+  const removeClient = (client) => {
+    const res = confirm(`estas seguro que deseas eliminar a ${client.name} de los clientes?`)
+    console.log(res)
+  }
 
   return (
     <main className='h-[calc(100vh-180px)]'>

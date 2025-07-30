@@ -1,9 +1,7 @@
 import { useState } from 'react'
-import ClientForm from './ClientForm/ClientForm'
+import ClientForm from '@/components/MyComponents/ClientForm/ClientForm'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import {
-  Dialog,
-} from '@/components/ui/dialog'
+import { Dialog } from '@/components/ui/dialog'
 
 export default function AddCients() {
 

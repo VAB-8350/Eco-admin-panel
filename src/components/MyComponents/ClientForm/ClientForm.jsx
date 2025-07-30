@@ -31,18 +31,20 @@ const phoneSchema = z.object({
 })
 
 
-export default function ClientForm({ setOpen }) {
+export default function ClientForm({ setOpen, defaultValues }) {
 
   // Hooks
-  const form = useForm({ resolver: zodResolver(formSchema) })
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues
+  })
 
   const { formState: { isSubmitting } } = form
 
   // Local State
-  const [phones, setPhones] = useState([])
-  const [mainPhone, setMainPhone] = useState()
+  const [phones, setPhones] = useState(defaultValues?.phones || [])
   const [phoneError, setPhoneError] = useState('')
-  const [addresses, setAddresses] = useState([])
+  const [addresses, setAddresses] = useState(defaultValues?.addresses || [])
 
   // Refs
   const refPhoneInput = useRef(null)
@@ -50,7 +52,11 @@ export default function ClientForm({ setOpen }) {
   // Methods
   const onSubmit = async (data) => {
 
-    console.log(data)
+    console.log({
+      ...data,
+      phones,
+      addresses
+    })
 
   }
 
@@ -59,12 +65,13 @@ export default function ClientForm({ setOpen }) {
     setPhoneError('')
 
     if (phone.success) {
-      if (phones.includes(phone.data.phone)) {
+      const isAdded = phones.some(p => p.number === phone.data.phone)
+      if (isAdded) {
         setPhoneError('Este Teléfono ya esta agregado')
         return
       }
-      if (phones.length === 0) setMainPhone(phone.data.phone)
-      setPhones([...phones, phone.data.phone])
+      const hasPrimary = phones.some(p => p.primary)
+      setPhones([...phones, { number: phone.data.phone, primary: (phones.length === 0) || !hasPrimary ? true : false }])
     } else {
       setPhoneError(JSON.parse(phone.error)[0].message)
     }
@@ -76,7 +83,7 @@ export default function ClientForm({ setOpen }) {
   }
 
   const removePhone = (removePhone) => {
-    setPhones(phones.filter(phone => phone !== removePhone))
+    setPhones(phones.filter(phone => phone.number !== removePhone.number))
   }
 
   const addAddress = (data) => {
@@ -211,16 +218,20 @@ export default function ClientForm({ setOpen }) {
             </div>
 
             <div className='col-span-6 row-start-3 flex flex-wrap gap-2'>
-
               {
-                phones.map((phone) => (
-                  <Badge key={phone} variant='outline' className='h-fit'>
+                phones.map((phone, index) => (
+                  <Badge key={index} variant='outline' className='h-fit'>
                     <div className='flex items-center gap-1'>
                       {
-                        mainPhone === phone &&
+                        phone.primary &&
                         <span className='w-2 h-2 bg-green-400 rounded-full' />
                       }
-                      <p className='text-xs p-0 hover:cursor-pointer' onClick={() => setMainPhone(phone)}>{phone}</p>
+                      <p
+                        className='text-xs p-0 hover:cursor-pointer'
+                        onClick={() =>
+                          setPhones(phones.map((p, i) => ({ ...p, primary: i === index })))
+                        }
+                      >{phone.number}</p>
                       <button type='button' className='text-xs hover:cursor-pointer' onClick={() => removePhone(phone)}><X className='w-4 h-4 stroke-red-600' /></button>
                     </div>
                   </Badge>
@@ -260,7 +271,7 @@ export default function ClientForm({ setOpen }) {
             addresses?.map((address, i) => (
               <div key={i} className='w-full border rounded-md flex gap-7 items-center p-2.5 pl-7'>
                 <MapPinned />
-                  
+
                 <div>
                   <h4 className='text-xl'><strong>{address.name}</strong> - <span>{address.address}</span></h4>
                   <p className='text-sm text-[var(--primary)]/60'>{address.country}, {address.region}, {address.city}, {address.zip}</p>

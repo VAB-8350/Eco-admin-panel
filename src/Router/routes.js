@@ -11,11 +11,12 @@ import {
 const Login = React.lazy(() => import('@/Screens/Login/Login'))
 
 // Private routes
-const Dashboard = React.lazy(() => import('@/Screens/Dashboard/Dashboard'))
-const Sales     = React.lazy(() => import('@/Screens/Sales/Sales'))
-const Team      = React.lazy(() => import('@/Screens/Team/Team'))
-const Client    = React.lazy(() => import('@/Screens/Clients/Clients'))
-const AddClient = React.lazy(() => import('@/Screens/AddClient/AddClient'))
+const Dashboard   = React.lazy(() => import('@/Screens/Dashboard/Dashboard'))
+const Sales       = React.lazy(() => import('@/Screens/Sales/Sales'))
+const Team        = React.lazy(() => import('@/Screens/Team/Team'))
+const Client      = React.lazy(() => import('@/Screens/Clients/Clients'))
+const AddClient   = React.lazy(() => import('@/Screens/AddClient/AddClient'))
+const EditClient = React.lazy(() => import('@/Screens/EditClient/EditClient'))
 
 const publicRoutes = [
   {
@@ -54,6 +55,12 @@ const privateRoutes = [
     path: '/clients',
     label: 'Client',
     component: Client,
+    roles: [ROLE_ADMIN, ROLE_USER]
+  },
+  {
+    path: '/edit-client/*',
+    label: 'Edit Client',
+    component: EditClient,
     roles: [ROLE_ADMIN, ROLE_USER]
   }
 ]
