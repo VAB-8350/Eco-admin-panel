@@ -1,7 +1,8 @@
 import BigTable from '@/components/MyComponents/BigTable'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Search } from 'lucide-react'
+import { Search, Plus } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export default function Clients() {
 
@@ -30,7 +31,7 @@ export default function Clients() {
       header: 'Gastado el ultimo año',
       accessorKey: 'pay',
       enableSorting: false,
-    },
+    }
   ]
 
   const data = [
@@ -146,10 +147,15 @@ export default function Clients() {
       <header className='flex justify-between flex-row gap-5 h-[10%] lg:h-[15%]'>
         <h1 className='text-4xl font-bold'>Clientes</h1>
 
-        <Button className='font-bold' onClick={() => console.log('hola')}>Cargar Cliente</Button>
+        <Button className='font-bold' asChild>
+          <Link to='/add-client'>
+            <span className='hidden lg:inline-block'>Cargar Cliente</span>
+            <span className='inline-block lg:hidden'><Plus className='stroke-3' /></span>
+          </Link>
+        </Button>
       </header>
 
-      <section className='flex flex-col w-full mx-auto overflow-hidden h-[90%] lg:h-[90%]'>
+      <section className='flex flex-col w-full mx-auto overflow-hidden h-[90%]'>
         <div className='flex justify-center mb-2.5'>
           <div className='w-1/2 max-w-[400px] relative flex items-center'>
             <Input type='text' placeHolder='Buscar' className='w-full' />

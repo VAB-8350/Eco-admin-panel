@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
-import { Pencil, UserRoundX, UsersRound, UserRoundPlus, Check, X } from 'lucide-react'
+import { Pencil, UserRoundX, UsersRound, UserRoundPlus, Plus } from 'lucide-react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
@@ -187,8 +187,8 @@ export default function Team() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <header className='flex justify-between items-center flex-col lg:flex-row gap-5'>
-        <h1 className='text-4xl font-bold'>{showBans ? 'Baneados' : 'Equipo'}</h1>
+      <header className='flex justify-between items-center gap-5'>
+        <h1 className='text-4xl font-bold text-left w-full'>{showBans ? 'Baneados' : 'Equipo'}</h1>
 
         <div className='flex items-center gap-2'>
           {
@@ -201,7 +201,10 @@ export default function Team() {
           }
 
           <DialogTrigger asChild>
-            <Button className='font-bold' onClick={() => setInitialValue(defaultVal)}>Agregar un admin</Button>
+            <Button className='font-bold' onClick={() => setInitialValue(defaultVal)}>
+              <span className='hidden lg:inline-block'>Agregar un admin</span>
+              <span className='inline-block lg:hidden'><Plus className='stroke-3' /></span>
+            </Button>
           </DialogTrigger>
         </div>
 

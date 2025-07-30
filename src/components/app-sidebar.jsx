@@ -80,7 +80,7 @@ const data = {
     },
     {
       name: 'Cargar cliente',
-      url: '#',
+      url: '/add-client',
       icon: UserRoundPlus,
     },
   ],
