@@ -154,10 +154,14 @@ export default function ClientForm({ defaultValues }) {
                     name='name'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel htmlFor={field.name} className='font-bold'>Nombre</FormLabel>
+                        <FormLabel htmlFor={field.name} className='font-bold'>
+                          {
+                            type === 'INDIVIDUAL' ? 'Nombre' : 'Nombre de fantasía'
+                          }
+                        </FormLabel>
                           
                         <FormControl>
-                          <Input id={field.name} placeholder='nombre' type='text' {...field} disabled={isSubmitting} />
+                          <Input id={field.name} placeholder={type === 'INDIVIDUAL' ? 'Juan' : 'FarmaSur'} type='text' {...field} disabled={isSubmitting} />
                         </FormControl>
                           
                         <FormMessage />
@@ -172,10 +176,14 @@ export default function ClientForm({ defaultValues }) {
                     name='lastName'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel htmlFor={field.name} className='font-bold'>Apellido</FormLabel>
+                        <FormLabel htmlFor={field.name} className='font-bold'>
+                          {
+                            type === 'INDIVIDUAL' ? 'Apellido' : 'Nombre de la empresa'
+                          }
+                        </FormLabel>
                           
                         <FormControl>
-                          <Input id={field.name} placeholder='Apellido' type='text' {...field} disabled={isSubmitting} />
+                          <Input id={field.name} placeholder={type === 'INDIVIDUAL' ? 'Pérez' : 'Laboratorios Farmacéuticos del Sur S.A.'} type='text' {...field} disabled={isSubmitting} />
                         </FormControl>
                           
                         <FormMessage />
@@ -187,21 +195,19 @@ export default function ClientForm({ defaultValues }) {
                 <div className='col-span-2 row-start-2 col-start-1'>
                   <FormLabel className='font-bold mb-2'>Tipo de cliente</FormLabel>
                       
-                  <FormControl>
-                    <Select
-                      onValueChange={setType}
-                      defaultValue={type}
-                    >
-                      <SelectTrigger className='w-full'>
-                        <SelectValue placeholder='Tipo' />
-                      </SelectTrigger>
+                  <Select
+                    onValueChange={setType}
+                    defaultValue={type}
+                  >
+                    <SelectTrigger className='w-full'>
+                      <SelectValue placeholder='Tipo' />
+                    </SelectTrigger>
 
-                      <SelectContent>
-                        <SelectItem value={'INDIVIDUAL'}>Persona</SelectItem>
-                        <SelectItem value={'BUSINESS'}>Empresa</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
+                    <SelectContent>
+                      <SelectItem value={'INDIVIDUAL'}>Persona</SelectItem>
+                      <SelectItem value={'BUSINESS'}>Empresa</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 
                 {

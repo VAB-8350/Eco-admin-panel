@@ -4,6 +4,10 @@ const baseSchema = z.object({
   name: z.string().min(2, 'Este campo es requerido.'),
   lastName: z.string().min(2, 'Este campo es requerido.'),
   note: z.string().optional(),
+  role: z.string().optional(),
+  type: z.enum(['EMPLOYEE', 'FAMILY', 'EMERGENCY', 'OTHER'], {
+    errorMap: () => ({ message: 'Debe seleccionar un tipo válido.' })
+  })
 })
 
 export function contactSchema (contactType) {

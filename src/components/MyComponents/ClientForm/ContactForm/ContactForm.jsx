@@ -6,6 +6,13 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -16,6 +23,13 @@ import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { contactSchema } from './schema'
 import { Separator } from '@/components/ui/separator'
+
+const contactTypes = [
+  { value: 'EMPLOYEE', label: 'Empleado' },
+  { value: 'FAMILY', label: 'Familiar' },
+  { value: 'EMERGENCY', label: 'Emergencia' },
+  { value: 'OTHER', label: 'Otro' }
+]
 
 
 export default function ContactForm({ handleSubmit, defaultValues }) {
@@ -67,7 +81,7 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
     <Form {...form} className='w-full'>
       <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col gap-3'>
 
-        <div className='grid grid-cols-12 gap-3'>
+        <div className='grid grid-cols-12 gap-4'>
           <div className='col-span-6'>
             <FormField
               control={form.control}
@@ -98,6 +112,61 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
                     <Input id={field.name} placeholder='Apellido' type='text' {...field} disabled={isSubmitting} />
                   </FormControl>
                             
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className='col-span-6'>
+            <FormField
+              control={form.control}
+              name='type'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor={field.name} className='font-bold'>Tipo de Contacto</FormLabel>
+
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <SelectTrigger className='w-full'>
+                        <SelectValue placeholder='Tipo de contacto' />
+                      </SelectTrigger>
+  
+                      <SelectContent>
+                        {contactTypes.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className='col-span-6'>
+            <FormField
+              control={form.control}
+              name='role'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor={field.name} className='font-bold'>Rol</FormLabel>
+                                
+                  <FormControl>
+                    <Input
+                      id={field.name}
+                      placeholder='Gerente de Compras'
+                      type='text'
+                      {...field}
+                      disabled={isSubmitting}
+                    />
+                  </FormControl>
+                                
                   <FormMessage />
                 </FormItem>
               )}

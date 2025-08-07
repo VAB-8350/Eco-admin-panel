@@ -22,7 +22,9 @@ import z from 'zod'
 import { provincesAr } from '@/Helpers/RegionsAr'
 
 const addressSchema = z.object({
-  name: z.string().min(1),
+  place: z.enum(['HOME', 'WORK', 'OTHER'], {
+    errorMap: () => ({ message: 'Debe seleccionar un tipo válido.' })
+  }),
   country: z.string().min(1),
   address: z.string().min(1),
   region: z.string().min(1),
@@ -32,8 +34,14 @@ const addressSchema = z.object({
   note: z.string().optional(),
 })
 
+const addressTypes = [
+  { value: 'HOME', label: 'Casa' },
+  { value: 'WORK', label: 'Trabajo' },
+  { value: 'OTHER', label: 'Otro' }
+]
+
 const defaultValues = {
-  name: '',
+  place: '',
   country: 'ARG',
   address: '',
   region: '',
@@ -65,16 +73,29 @@ export default function AddAddress({ submit }) {
         <div className='grid grid-cols-2 gap-5'>
           <FormField
             control={form.control}
-            name='name'
+            name='place'
             render={({ field }) => (
               <FormItem>
-                <FormLabel htmlFor={field.name} className='font-bold'>Nombre</FormLabel>
+                <FormLabel htmlFor={field.name} className='font-bold'>Lugar</FormLabel>
                   
                 <FormControl>
-                  <Input id={field.name} placeholder='Casa' type='text' {...field} disabled={isSubmitting} />
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger className='w-full'>
+                      <SelectValue placeholder='Seleccione lugar' />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      {addressTypes.map((province) => (
+                        <SelectItem key={province.value} value={province.value}>
+                          {province.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormControl>
-                  
-                <FormMessage />
               </FormItem>
             )}
           />
