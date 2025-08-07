@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useForm } from 'react-hook-form'
-import { useState } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { contactSchema } from './schema'
 import { Separator } from '@/components/ui/separator'
@@ -37,17 +37,44 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
   // Local State
   const [primary, setPrimary] = useState('EMAIL')
 
-  // Hooks
+  // Use standard form with static schema
   const form = useForm({
-    resolver: (() => zodResolver(contactSchema(primary)))(),
-    defaultValues
+    resolver: zodResolver(contactSchema),
+    defaultValues: {
+      ...defaultValues,
+      primary: 'EMAIL' // Incluir el campo primary en los valores por defecto
+    },
+    mode: 'onSubmit', // Solo validar al enviar
+    reValidateMode: 'onChange' // Re-validar en tiempo real después del primer envío
   })
 
   const { formState: { isSubmitting } } = form
 
+  // Initialize primary value in form
+  useEffect(() => {
+    form.setValue('primary', primary)
+  }, [form, primary])
+
+  // Handle primary change
+  const handlePrimaryChange = useCallback((newPrimary) => {
+    setPrimary(newPrimary)
+    // Actualizar el valor primary en el formulario para la validación
+    form.setValue('primary', newPrimary)
+    // Limpiar errores de campos de contacto
+    form.clearErrors(['email', 'phone', 'whatsapp'])
+    // Trigger validation on the contact fields
+    setTimeout(() => {
+      form.trigger(['email', 'phone', 'whatsapp'])
+    }, 0)
+  }, [form])
+
 
   // Methods
   const onSubmit = async (data) => {
+    // Forzar validación completa antes de procesar
+    const isValid = await form.trigger()
+    
+    if (!isValid) return
 
     const body = {
       first_name: data.name,
@@ -72,14 +99,12 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
       ]
     }
 
-    
-
     handleSubmit(body)
   }
 
   return (
     <Form {...form} className='w-full'>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col gap-3'>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col gap-3' noValidate>
 
         <div className='grid grid-cols-12 gap-4'>
           <div className='col-span-6'>
@@ -144,6 +169,8 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
                       </SelectContent>
                     </Select>
                   </FormControl>
+
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -175,7 +202,7 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
               
           <div className='col-span-2'>
             <Label className='font-bold mb-2'>Principal</Label>
-            <Switch className='mt-2 ml-2' checked={primary === 'PHONE_PERSONAL'} onCheckedChange={() => setPrimary('PHONE_PERSONAL')} />
+            <Switch className='mt-2 ml-2' checked={primary === 'PHONE_PERSONAL'} onCheckedChange={() => handlePrimaryChange('PHONE_PERSONAL')} />
           </div>
 
           <div className='col-span-10 pl-8'>
@@ -206,7 +233,7 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
 
 
           <div className='col-span-2'>
-            <Switch className='mt-7.5 ml-2' checked={primary === 'WHATSAPP'} onCheckedChange={() => setPrimary('WHATSAPP')} />
+            <Switch className='mt-7.5 ml-2' checked={primary === 'WHATSAPP'} onCheckedChange={() => handlePrimaryChange('WHATSAPP')} />
           </div>
 
           <div className='col-span-10 pl-8'>
@@ -236,7 +263,7 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
           <Separator className='col-span-12' />
 
           <div className='col-span-2'>
-            <Switch className='mt-7.5 ml-2' checked={primary === 'EMAIL'} onCheckedChange={() => setPrimary('EMAIL')} />
+            <Switch className='mt-7.5 ml-2' checked={primary === 'EMAIL'} onCheckedChange={() => handlePrimaryChange('EMAIL')} />
           </div>
 
           <div className='col-span-10 pl-8'>

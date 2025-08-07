@@ -23,13 +23,13 @@ import { provincesAr } from '@/Helpers/RegionsAr'
 
 const addressSchema = z.object({
   place: z.enum(['HOME', 'WORK', 'OTHER'], {
-    errorMap: () => ({ message: 'Debe seleccionar un tipo válido.' })
+    errorMap: () => ({ message: 'Debe seleccionar un lugar.' }),
   }),
   country: z.string().min(1),
-  address: z.string().min(1),
-  region: z.string().min(1),
-  zip: z.string().min(4),
-  city: z.string().min(1),
+  address: z.string().min(1, 'Escriba una dirección.'),
+  region: z.string().min(1, 'Seleccione una provincia.'),
+  zip: z.string().min(4, 'Escriba un código postal.'),
+  city: z.string().min(1, 'Escriba una ciudad.'),
   dpto: z.string().optional(),
   note: z.string().optional(),
 })
@@ -96,6 +96,8 @@ export default function AddAddress({ submit }) {
                     </SelectContent>
                   </Select>
                 </FormControl>
+
+                <FormMessage />
               </FormItem>
             )}
           />
