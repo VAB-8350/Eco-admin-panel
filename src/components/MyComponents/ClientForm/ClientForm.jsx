@@ -341,7 +341,7 @@ export default function ClientForm({ defaultValues }) {
                 <div key={contact.id} className='border-b border-border py-2 last:border-b-0 flex items-center gap-4 px-4 relative hover:bg-[#f9f9f9] hover:dark:bg-[#181818] transition-colors duration-200'>
                   <ContactRound />
                   <div>
-                    <h4 className='text-lg font-bold'>
+                    <h4 className='text-md font-bold'>
                       {contact.first_name} {contact.last_name}
                       {
                         primaryContact === contact.id &&
@@ -351,7 +351,7 @@ export default function ClientForm({ defaultValues }) {
                         </Badge>
                       }
                     </h4>
-                    <p className='text-sm text-muted-foreground flex gap-2'>
+                    <p className='text-xs text-muted-foreground flex gap-2'>
                       {contact.contact_methods
                         .filter(method => method.value)
                         .map(method => (
@@ -450,13 +450,13 @@ export default function ClientForm({ defaultValues }) {
                 <div key={address.id} className='border-b border-border py-2 last:border-b-0 flex items-center gap-4 px-4 relative hover:bg-[#f9f9f9] hover:dark:bg-[#181818] transition-colors duration-200'>
                   <MapPinned />
                   <div>
-                    <h4 className='text-lg font-bold'>
-                      {address.name}
+                    <h4 className='text-sm font-bold'>
+                      {address.place} - {address.address}
                       {
                         shippingAddress === address.id &&
                         <Badge variant='outline' className='ml-2'>
                           <Truck className='w-4 h-4 mr-1 stroke-green-500' />
-                          Envio
+                          Envío
                         </Badge>
                       }
 
@@ -464,11 +464,11 @@ export default function ClientForm({ defaultValues }) {
                         billingAddress === address.id &&
                         <Badge variant='outline' className='ml-2'>
                           <FileText className='w-4 h-4 mr-1 stroke-blue-400' />
-                          Facturacion
+                          Facturación
                         </Badge>
                       }
                     </h4>
-                    <p className='text-sm text-muted-foreground'>
+                    <p className='text-xs text-muted-foreground'>
                       {address.country === 'ARG' ? 'Argentina' : address.country}, {provincesAr.find(p => p.code === address.region)?.name}, {address.city}, {address.zip}
                     </p>
                   </div>
