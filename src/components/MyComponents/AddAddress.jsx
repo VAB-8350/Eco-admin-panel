@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import z from 'zod'
+import { provincesAr } from '@/Helpers/RegionsAr'
 
 const addressSchema = z.object({
   name: z.string().min(1),
@@ -27,14 +28,26 @@ const addressSchema = z.object({
   region: z.string().min(1),
   zip: z.string().min(4),
   city: z.string().min(1),
-  dpto: z.string().min(1),
-  note: z.string().min(5),
+  dpto: z.string().optional(),
+  note: z.string().optional(),
 })
+
+const defaultValues = {
+  name: '',
+  country: 'ARG',
+  address: '',
+  region: '',
+  zip: '',
+  city: '',
+  dpto: '',
+  note: '',
+}
 
 export default function AddAddress({ submit }) {
 
   const form = useForm({
-    resolver: zodResolver(addressSchema)
+    resolver: zodResolver(addressSchema),
+    defaultValues
   })
 
   const { formState: { isSubmitting } } = form
@@ -72,18 +85,19 @@ export default function AddAddress({ submit }) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel htmlFor={field.name} className='font-bold'>País</FormLabel>
-                  
+
                 <FormControl>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
+                    disabled
                   >
                     <SelectTrigger className='w-full'>
                       <SelectValue placeholder='Seleccione un país' />
                     </SelectTrigger>
 
                     <SelectContent>
-                      <SelectItem value={'algo'}>hola</SelectItem>
+                      <SelectItem value={'ARG'}>Argentina</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -128,7 +142,11 @@ export default function AddAddress({ submit }) {
                     </SelectTrigger>
 
                     <SelectContent>
-                      <SelectItem value={'algo'}>hola</SelectItem>
+                      {provincesAr.map((province) => (
+                        <SelectItem key={province.code} value={province.code}>
+                          {province.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </FormControl>

@@ -7,295 +7,498 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import {
+  Dialog,
   DialogTrigger,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
+import { 
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { formSchema } from './schema'
+import { clientSchema } from './schema'
 import AddAddress from '@/components/MyComponents/AddAddress'
-import { X, Plus, MapPinned } from 'lucide-react'
+import { X, Plus, MapPinned, ContactRound, Pencil, Crown, Lightbulb, CircleCheck } from 'lucide-react'
 import { useState } from 'react'
-import { useRef } from 'react'
-import { z } from 'zod'
-
-const phoneSchema = z.object({
-  phone: z.string().min(7, 'Debe contener al menos 7 caracteres').regex(/^\+?\d+$/, 'El Teléfono no es valido')
-})
+import ContactForm from './ContactForm/ContactForm'
+import { Truck } from 'lucide-react'
+import { FileText } from 'lucide-react'
+import { provincesAr } from '@/Helpers/RegionsAr'
 
 
-export default function ClientForm({ setOpen, defaultValues }) {
+
+export default function ClientForm({ defaultValues }) {
+
+  // Local State
+  const [type, setType] = useState('INDIVIDUAL')
+  const [addresses, setAddresses] = useState([])
+  const [contacts, setContacts] = useState([])
+  const [openDir, setOpenDir] = useState(false)
+  const [openContact, setOpenContact] = useState(false)
+  const [primaryContact, setPrimaryContact] = useState(null)
+  const [shippingAddress, setShippingAddress] = useState(null)
+  const [billingAddress, setBillingAddress] = useState(null)
+  const [errors, setErrors] = useState({})
 
   // Hooks
   const form = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: (() => zodResolver(clientSchema(type)))(),
     defaultValues
   })
 
   const { formState: { isSubmitting } } = form
 
-  // Local State
-  const [phones, setPhones] = useState(defaultValues?.phones || [])
-  const [phoneError, setPhoneError] = useState('')
-  const [addresses, setAddresses] = useState(defaultValues?.addresses || [])
-
-  // Refs
-  const refPhoneInput = useRef(null)
-
   // Methods
   const onSubmit = async (data) => {
 
+    if (!validate()) return
+
     console.log({
       ...data,
-      phones,
-      addresses
+      addresses,
+      contacts,
+      primaryContact,
+      shippingAddress,
+      billingAddress
     })
 
   }
 
-  const addPhone = () => {
-    const phone = phoneSchema.safeParse({ phone: refPhoneInput.current?.value })
-    setPhoneError('')
+  const validate = () => {
+    const newErrors = {}
 
-    if (phone.success) {
-      const isAdded = phones.some(p => p.number === phone.data.phone)
-      if (isAdded) {
-        setPhoneError('Este Teléfono ya esta agregado')
-        return
+    if (contacts.length === 0) {
+      newErrors.contacts = {
+        type: 'contactsLength',
+        message: 'Debe agregar al menos un contacto.'
       }
-      const hasPrimary = phones.some(p => p.primary)
-      setPhones([...phones, { number: phone.data.phone, primary: (phones.length === 0) || !hasPrimary ? true : false }])
-    } else {
-      setPhoneError(JSON.parse(phone.error)[0].message)
+    }
+    if (addresses.length === 0) {
+      newErrors.addresses = {
+        type: 'addressesLength',
+        message: 'Debe agregar al menos una dirección.'
+      }
+    }
+    if (billingAddress === null || !addresses.some(address => address.id === billingAddress)) {
+      newErrors.billingAddress = {
+        type: 'billingAddress',
+        message: 'Debe seleccionar una dirección de facturación.'
+      }
+    }
+    if (shippingAddress === null || !addresses.some(address => address.id === shippingAddress)) {
+      newErrors.shippingAddress = {
+        type: 'shippingAddress',
+        message: 'Debe seleccionar una dirección de envío.'
+      }
+    }
+    if (primaryContact === null || !contacts.some(contact => contact.id === primaryContact)) {
+      newErrors.primaryContact = {
+        type: 'primaryContact',
+        message: 'Debe seleccionar un contacto principal.'
+      }
     }
 
-    if (refPhoneInput.current) {
-      refPhoneInput.current.value = ''
-      refPhoneInput.current.focus()
-    }
-  }
-
-  const removePhone = (removePhone) => {
-    setPhones(phones.filter(phone => phone.number !== removePhone.number))
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const addAddress = (data) => {
-    setAddresses([...addresses, data])
-    setOpen(false)
+    // Generar un id único para la dirección
+    const newAddress = { ...data, id: crypto.randomUUID() }
+    setAddresses([...addresses, newAddress])
+    if (shippingAddress === null) setShippingAddress(newAddress.id)
+    if (billingAddress === null) setBillingAddress(newAddress.id)
+    setOpenDir(false)
   }
 
-  // Render Methods
-  const ErrorMessage = ({ message }) => {
-    return (
-      message.length > 0
-        ? <p className='text-destructive text-sm'>{message}</p>
-        : null
-    )
+  const addContact = (data) => {
+    const newContact = { ...data, id: crypto.randomUUID() }
+    setContacts([...contacts, newContact])
+    if (primaryContact === null) setPrimaryContact(newContact.id)
+    setOpenContact(false)
   }
 
   return (
     <div className='px-5'>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col gap-4' id='client-form'>
+      <section className='grid grid-cols-12 gap-9'>
+        <div className='col-span-7'>
+          <header className='flex justify-between items-center mb-5'>
+            <h3 className='text-2xl font-bold'>Cliente</h3>
+          </header>
 
-          <div className='grid grid-cols-12 grid-rows-3 gap-4'>
-            <div className='col-span-2'>
-              <FormField
-                control={form.control}
-                name='name'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor={field.name} className='font-bold'>Nombre</FormLabel>
-                    
-                    <FormControl>
-                      <Input id={field.name} placeholder='nombre' type='text' {...field} disabled={isSubmitting} />
-                    </FormControl>
-                    
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            
-            <div className='col-span-2'>
-              <FormField
-                control={form.control}
-                name='lastName'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor={field.name} className='font-bold'>Apellido</FormLabel>
-                    
-                    <FormControl>
-                      <Input id={field.name} placeholder='Apellido' type='text' {...field} disabled={isSubmitting} />
-                    </FormControl>
-                    
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className='col-span-2'>
-              <FormField
-                control={form.control}
-                name='DNI'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor={field.name} className='font-bold'>DNI</FormLabel>
-                    
-                    <FormControl>
-                      <Input id={field.name} placeholder='12345678' type='text' {...field} disabled={isSubmitting} />
-                    </FormControl>
-                    
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className='col-span-6 row-span-3 col-start-7 h-full flex'>
-              <FormField
-                control={form.control}
-                name='note'
-                render={({ field }) => (
-                  <FormItem className='flex flex-col w-full'>
-                    <FormLabel htmlFor={field.name} className='font-bold h-fit'>Nota</FormLabel>
-                    
-                    <FormControl>
-                      <Textarea className='h-full resize-none' id={field.name} placeholder='Nota de recordatorio' type='text' {...field} disabled={isSubmitting} />
-                    </FormControl>
-                    
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className='col-span-3 row-start-2 flex flex-col gap-2'>
-              <FormLabel htmlFor='phone' className='font-bold h-fit'>Teléfono</FormLabel>
-              <div className='flex gap-1'>
-                <Button className='w-fit' type='button' onClick={addPhone}><Plus /></Button>
-                <Input
-                  id='phone'
-                  placeholder='3584123123'
-                  type='text'
-                  disabled={isSubmitting}
-                  ref={refPhoneInput}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      addPhone()
-                    }
-                  }}
-                />
-              </div>
-              <ErrorMessage message={phoneError} />
-            </div>
-            
-            <div className='col-span-3 col-start-4 row-start-2'>
-              <FormField
-                control={form.control}
-                name='email'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor={field.name} className='font-bold'>Email</FormLabel>
-                    
-                    <FormControl>
-                      <Input id={field.name} placeholder='nombre@dominio.com' type='text' {...field} disabled={isSubmitting} />
-                    </FormControl>
-                    
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className='col-span-6 row-start-3 flex flex-wrap gap-2'>
-              {
-                phones.map((phone, index) => (
-                  <Badge key={index} variant='outline' className='h-fit'>
-                    <div className='flex items-center gap-1'>
-                      {
-                        phone.primary &&
-                        <span className='w-2 h-2 bg-green-400 rounded-full' />
-                      }
-                      <p
-                        className='text-xs p-0 hover:cursor-pointer'
-                        onClick={() =>
-                          setPhones(phones.map((p, i) => ({ ...p, primary: i === index })))
-                        }
-                      >{phone.number}</p>
-                      <button type='button' className='text-xs hover:cursor-pointer' onClick={() => removePhone(phone)}><X className='w-4 h-4 stroke-red-600' /></button>
-                    </div>
-                  </Badge>
-                ))
-              }
-            </div>
-          </div>
-        </form>
-      </Form>
-
-      <section className='my-10 border-t border-b border-[var(--border)]'>
-        <header className='flex justify-between items-center my-5'>
-          <h3 className='text-2xl font-bold'>Direcciones</h3>
-
-          <DialogTrigger asChild>
-            <Button className='font-bold'>
-              <span className='hidden lg:inline-block'>Agregar Dirección</span>
-              <span className='inline-block lg:hidden'><Plus className='stroke-3' /></span>
-            </Button>
-          </DialogTrigger>
-        </header>
-        
-        <DialogContent className='sm:max-w-[425px]'>
-          <DialogHeader>
-            <DialogTitle>Agregar Dirección</DialogTitle>
-            <DialogDescription>
-                Puedes rellenar primero el campo "Dirección" para obtener un autocompletado con google.
-            </DialogDescription>
-          </DialogHeader>
-
-          <AddAddress submit={addAddress} />
-        </DialogContent>
-
-        <div className='grid grid-cols-3 gap-2 mb-10'>
-          
-          {
-            addresses?.map((address, i) => (
-              <div key={i} className='w-full border rounded-md flex gap-7 items-center p-2.5 pl-7'>
-                <MapPinned />
-
-                <div>
-                  <h4 className='text-xl'><strong>{address.name}</strong> - <span>{address.address}</span></h4>
-                  <p className='text-sm text-[var(--primary)]/60'>{address.country}, {address.region}, {address.city}, {address.zip}</p>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col gap-4' id='client-form'>
+              <div className='grid grid-cols-6 gap-4'>
+                <div className='col-span-3'>
+                  <FormField
+                    control={form.control}
+                    name='name'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor={field.name} className='font-bold'>Nombre</FormLabel>
+                          
+                        <FormControl>
+                          <Input id={field.name} placeholder='nombre' type='text' {...field} disabled={isSubmitting} />
+                        </FormControl>
+                          
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                  
+                <div className='col-span-3'>
+                  <FormField
+                    control={form.control}
+                    name='lastName'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor={field.name} className='font-bold'>Apellido</FormLabel>
+                          
+                        <FormControl>
+                          <Input id={field.name} placeholder='Apellido' type='text' {...field} disabled={isSubmitting} />
+                        </FormControl>
+                          
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
-                <button
-                  type='button'
-                  onClick={() => setAddresses([...addresses.filter((_, index) => index !== i)])}
-                  className='text-red-600 ml-auto hover:cursor-pointer'
-                >
-                  <X />
-                </button>
-              </div>
-            ))
-          }
+                <div className='col-span-2 row-start-2 col-start-1'>
+                  <FormLabel className='font-bold mb-2'>Tipo de cliente</FormLabel>
+                      
+                  <FormControl>
+                    <Select
+                      onValueChange={setType}
+                      defaultValue={type}
+                    >
+                      <SelectTrigger className='w-full'>
+                        <SelectValue placeholder='Tipo' />
+                      </SelectTrigger>
 
+                      <SelectContent>
+                        <SelectItem value={'INDIVIDUAL'}>Persona</SelectItem>
+                        <SelectItem value={'BUSINESS'}>Empresa</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                </div>
+                
+                {
+                  type === 'INDIVIDUAL' &&
+                  <div className='col-span-4 row-start-2 col-start-3'>
+                    <FormField
+                      control={form.control}
+                      name='DNI'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor={field.name} className='font-bold'>DNI</FormLabel>
+                            
+                          <FormControl>
+                            <Input id={field.name} placeholder='12345678' type='text' {...field} disabled={isSubmitting} />
+                          </FormControl>
+                            
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                }
+                {
+                  type === 'BUSINESS' &&
+                  <div className='col-span-4 row-start-2 col-start-3'>
+                    <FormField
+                      control={form.control}
+                      name='CUIT'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor={field.name} className='font-bold'>CUIT</FormLabel>
+
+                          <FormControl>
+                            <Input id={field.name} placeholder='20123456785' type='text' {...field} disabled={isSubmitting} />
+                          </FormControl>
+                            
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                }
+
+                <div className='col-span-6 row-start-3 col-start-1'>
+                  <FormField
+                    control={form.control}
+                    name='note'
+                    render={({ field }) => (
+                      <FormItem className='flex flex-col w-full h-[100px]'>
+                        <FormLabel htmlFor={field.name} className='font-bold'>Nota</FormLabel>
+                          
+                        <FormControl>
+                          <Textarea className='h-full resize-none' id={field.name} placeholder='Nota de recordatorio' type='text' {...field} disabled={isSubmitting} />
+                        </FormControl>
+                          
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            </form>
+          </Form>
+        </div>
+
+        <Card className='col-span-5'>
+          <CardHeader>
+            <CardTitle className='font-bold flex items-center gap-2 text-xl'>
+              <Lightbulb className='w-5 h-5 stroke-amber-300'/> Consejos
+            </CardTitle>
+            <CardDescription>Esto tal vez pueda servirte.</CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <ul className='list-disc list-inside ml-5 flex flex-col gap-2'>
+              <li className='font-'>Marca un contacto como principal</li>
+              <li className='font-'>Agrega múltiples contactos si es necesario</li>
+              <li className='font-'>Recuerda configurar el contacto principal</li>
+              <li className='font-'>Agrega múltiples direcciones si es necesario</li>
+              <li className='font-'>Recuerda configurar la dirección de envío y de facturación</li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        <div className='col-span-6'>
+          <Dialog open={openContact} onOpenChange={setOpenContact}>
+            <div>
+              <header className='flex justify-between items-center mb-5'>
+                <h3 className='text-2xl font-bold'>Contactos</h3>
+              
+                <DialogTrigger asChild>
+                  
+                  <Button className='font-bold hover:cursor-pointer' variant='outline'>
+                    <span className='hidden lg:flex gap-2 items-center'><Plus className='stroke-3' />Agregar</span>
+                    <span className='inline-block lg:hidden'><Plus className='stroke-3' /></span>
+                  </Button>
+                </DialogTrigger>
+              </header>
+              
+              {
+                errors.contacts &&
+                <span className='text-red-600 text-sm'>{errors.contacts.message}</span>
+              }
+              {
+                !errors.contacts && errors.primaryContact &&
+                <span className='text-red-600 text-sm'>{errors.primaryContact.message}</span>
+              }
+            </div>
+
+            <DialogContent className='sm:max-w-[425px]'>
+              <DialogHeader>
+                <DialogTitle>Agregar Contacto</DialogTitle>
+                <DialogDescription>
+                  Puedes agregar multiples contactos para el cliente y elegir uno como principal.
+                </DialogDescription>
+              </DialogHeader>
+
+              <ContactForm handleSubmit={addContact} />
+            </DialogContent>
+          </Dialog>
+
+          <ScrollArea className='w-full h-[250px] pr-5' id='contacts-scroll-area'>
+
+            {contacts.length === 0 ? (
+              <div className='w-full h-full flex flex-col items-center justify-center mt-10'>
+                <h3 className='text-2xl font-bold'>Agregue un contacto</h3>
+                <p className='text-sm text-muted-foreground'>Para comenzar, haga clic en "Agregar".</p>
+              </div>
+            ) : (
+              contacts.reverse().map((contact) => (
+                <div key={contact.id} className='border-b border-border py-2 last:border-b-0 flex items-center gap-4 px-4 relative hover:bg-[#f9f9f9] hover:dark:bg-[#181818] transition-colors duration-200'>
+                  <ContactRound />
+                  <div>
+                    <h4 className='text-lg font-bold'>
+                      {contact.first_name} {contact.last_name}
+                      {
+                        primaryContact === contact.id &&
+                        <Badge variant='outline' className='ml-2'>
+                          <CircleCheck className='w-4 h-4 mr-1 stroke-green-500' />
+                          Principal
+                        </Badge>
+                      }
+                    </h4>
+                    <p className='text-sm text-muted-foreground flex gap-2'>
+                      {contact.contact_methods
+                        .filter(method => method.value)
+                        .map(method => (
+                          <span
+                            key={method.type}
+                            className={method.primary ? 'font-semibold text-green-600 dark:text-green-500' : ''}
+                          >
+                            {method.value}
+                          </span>
+                        ))}
+                    </p>
+                  </div>
+
+                  <div className='flex items-center gap-2 ml-auto'>
+                    <button
+                      type='button'
+                      onClick={() => {
+                        setPrimaryContact(contact.id)
+                      }}
+                      className='hover:text-yellow-500 hover:cursor-pointer ml-auto transition-colors duration-200'
+                    >
+                      <Crown className={`w-4 h-4 ${primaryContact === contact.id ? 'fill-yellow-500 stroke-yellow-500' : ''}`} />
+                    </button>
+                    <button
+                      type='button'
+                      className='hover:text-blue-500 hover:cursor-pointer ml-auto transition-colors duration-200'
+                    >
+                      <Pencil className='w-4 h-4' />
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() => setContacts([...contacts.filter((c) => c.id !== contact.id)])}
+                      className='text-red-600 hover:cursor-pointer ml-auto opacity-70 hover:opacity-100 transition-opacity duration-200'
+                    >
+                      <X className='w-5 h-5' />
+                    </button>
+                  </div>
+                  
+                </div>
+              ))
+            )}
+
+            <span className='inline-block w-full h-10 bg-linear-to-b from-transparent to-[var(--background)] position absolute bottom-0' />
+            <span className='inline-block h-10' />
+          </ScrollArea>
+        </div>
+
+        <div className='col-span-6'>
+          <Dialog open={openDir} onOpenChange={setOpenDir}>
+            <div className='flex flex-col'>
+              <header className='flex justify-between items-center mb-5'>
+                <h3 className='text-2xl font-bold'>Direcciones</h3>
+                
+                <DialogTrigger asChild>
+                  <Button className='font-bold hover:cursor-pointer' variant='outline'>
+                    <span className='hidden lg:flex gap-2 items-center'><Plus className='stroke-3' />Agregar</span>
+                    <span className='inline-block lg:hidden'><Plus className='stroke-3' /></span>
+                  </Button>
+                </DialogTrigger>
+              </header>
+              {
+                errors.addresses &&
+                <span className='text-red-600 text-sm'>{errors.addresses.message}</span>
+              }
+              {
+                !errors.addresses && errors.shippingAddress &&
+                <span className='text-red-600 text-sm'>{errors.shippingAddress.message}</span>
+              }
+              {
+                !errors.addresses && !errors.shippingAddress && errors.billingAddress &&
+                <span className='text-red-600 text-sm'>{errors.billingAddress.message}</span>
+              }
+            </div>
+            
+            <DialogContent className='sm:max-w-[425px]'>
+              <DialogHeader>
+                <DialogTitle>Agregar Dirección</DialogTitle>
+                <DialogDescription>
+                    Puedes rellenar primero el campo "Dirección" para obtener un autocompletado con google.
+                </DialogDescription>
+              </DialogHeader>
+
+              <AddAddress submit={addAddress} />
+            </DialogContent>
+          </Dialog>
+
+          <ScrollArea className='flex flex-col gap-3 h-[250px] overflow-y-auto pr-2' id='addresses-scroll-area'>
+
+            {addresses.length === 0 ? (
+              <div className='w-full h-full flex flex-col items-center justify-center mt-10'>
+                <h3 className='text-2xl font-bold'>Agregue una Dirección</h3>
+                <p className='text-sm text-muted-foreground'>Para comenzar, haga clic en "Agregar".</p>
+              </div>
+            ) : (
+              addresses.reverse().map((address) => (
+                <div key={address.id} className='border-b border-border py-2 last:border-b-0 flex items-center gap-4 px-4 relative hover:bg-[#f9f9f9] hover:dark:bg-[#181818] transition-colors duration-200'>
+                  <MapPinned />
+                  <div>
+                    <h4 className='text-lg font-bold'>
+                      {address.name}
+                      {
+                        shippingAddress === address.id &&
+                        <Badge variant='outline' className='ml-2'>
+                          <Truck className='w-4 h-4 mr-1 stroke-green-500' />
+                          Envio
+                        </Badge>
+                      }
+
+                      {
+                        billingAddress === address.id &&
+                        <Badge variant='outline' className='ml-2'>
+                          <FileText className='w-4 h-4 mr-1 stroke-blue-400' />
+                          Facturacion
+                        </Badge>
+                      }
+                    </h4>
+                    <p className='text-sm text-muted-foreground'>
+                      {address.country === 'ARG' ? 'Argentina' : address.country}, {provincesAr.find(p => p.code === address.region)?.name}, {address.city}, {address.zip}
+                    </p>
+                  </div>
+
+                  <div className='flex items-center gap-2 ml-auto'>
+                    <button
+                      type='button'
+                      onClick={() => setShippingAddress(address.id)}
+                      className='hover:cursor-pointer ml-auto opacity-70 hover:opacity-100 hover:text-green-500 transition-opacity duration-200'
+                    >
+                      <Truck className={`w-5 h-5 ${shippingAddress === address.id ? 'fill-green-500 stroke-green-700' : ''}`} />
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() => setBillingAddress(address.id)}
+                      className='hover:cursor-pointer ml-auto opacity-70 hover:opacity-100 hover:text-blue-400 transition-opacity duration-200'
+                    >
+                      <FileText className={`w-5 h-5 ${billingAddress === address.id ? 'fill-blue-400 stroke-blue-800' : ''}`} />
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() => setAddresses([...addresses.filter((a) => a.id !== address.id)])}
+                      className='text-red-600 hover:cursor-pointer ml-auto opacity-70 hover:opacity-100 transition-opacity duration-200'
+                    >
+                      <X className='w-5 h-5' />
+                    </button>
+                  </div>
+                  
+                </div>
+              ))
+            )}
+            <span className='inline-block w-full h-10 bg-linear-to-b from-transparent to-[var(--background)] position absolute bottom-0' />
+            <span className='inline-block h-10' />
+          </ScrollArea>
         </div>
       </section>
-      
-      <div className='w-full flex justify-end'>
-        <Button type='submit' className='font-bold w-fit' disabled={isSubmitting} form='client-form'>
-          Cargar Cliente
-        </Button>
-      </div>
     </div>
   )
 }
