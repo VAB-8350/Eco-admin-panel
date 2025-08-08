@@ -276,7 +276,7 @@ export default function ClientForm({ defaultValues }) {
         <Card className='col-span-5'>
           <CardHeader>
             <CardTitle className='font-bold flex items-center gap-2 text-xl'>
-              <Lightbulb className='w-5 h-5 stroke-amber-300'/> Consejos
+              <Lightbulb className='w-5 h-5 dark:stroke-amber-300 stroke-amber-500'/> Consejos
             </CardTitle>
             <CardDescription>Esto tal vez pueda servirte.</CardDescription>
           </CardHeader>
