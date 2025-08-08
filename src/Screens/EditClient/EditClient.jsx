@@ -4,45 +4,10 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Dialog } from '@/components/ui/dialog'
 
 // ! se debe reemplazar esto con la informacion para este usuario traida desde el back
-const defaultVal = {
-  id: '123asdf123',
-  name: 'Andres',
-  lastName: 'Barilin',
-  Email: '41815998',
-  DNI: '41815998',
-  email: 'algo@algol.com',
-  phones: [
-    {
-      number: '123123123',
-      primary: true
-    },
-    {
-      number: '123123123',
-      primary: false
-    }
-  ],
-  note: 'algo que va en la nota',
-  addresses: [
-    {
-      name: 'Casa',
-      address: 'asdf 123',
-      country: 'argentina',
-      region: 'cordoba',
-      city: 'Rio Cuarto',
-      zip: '1234'
-    },
-    {
-      name: 'Casa',
-      address: 'asdf 123',
-      country: 'argentina',
-      region: 'cordoba',
-      city: 'Rio Cuarto',
-      zip: '1234'
-    }
-  ]
-}
+import { data } from '@/Helpers/ClientMockData'
+const defaultVal = data[0]
 
-export default function AddCients() {
+export default function EditClients() {
 
   // Local State
   const [open, setOpen] = useState()
