@@ -43,6 +43,7 @@ import ContactForm from './ContactForm/ContactForm'
 import { Truck } from 'lucide-react'
 import { FileText } from 'lucide-react'
 import { provincesAr } from '@/Helpers/RegionsAr'
+import useClientQueries from './useClientQueries'
 
 
 
@@ -60,6 +61,16 @@ export default function ClientForm({ defaultValues }) {
   const [errors, setErrors] = useState({})
 
   // Hooks
+  const {
+    createClientMutation,
+    modifyClientMutation,
+    createAddressMutation,
+    modifyAddressMutation,
+    deleteAddressMutation,
+    createContactMutation,
+    modifyContactMutation,
+    deleteContactMutation,
+  } = useClientQueries()
   const form = useForm({
     resolver: (() => zodResolver(clientSchema(type)))(),
     defaultValues
