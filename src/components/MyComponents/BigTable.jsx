@@ -88,7 +88,8 @@ export default function BigTable({
           <table className='w-full h-full border-collapse'>
 
             {/* head */}
-            <thead className='sticky top-0 bg-[var(--background)]/50 backdrop-blur-2xl z-10'>
+            <thead className='sticky top-0 z-10'>
+              <span className='absolute inset-0 w-full h-full rounded-md rounded-tr-md rounded-tl-md bg-[var(--border)] backdrop-blur-xl' />
               {
                 table.getHeaderGroups().map(group => (
                   // header row
@@ -142,7 +143,7 @@ export default function BigTable({
                   <tr
                     key={row.id}
                     className={`
-                      border-b border-[--border] hover:bg-[#f9f9f9] hover:dark:bg-[#181818]
+                      border-b border-[--border] hover:bg-[#f9f9f9] hover:dark:bg-[var(--border)]/50
                       ${addStatusColors ? `status-${row.original.status}` : ''}
                       ${hoverRow ? 'hover-row-active' : ''}
                     `}
