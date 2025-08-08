@@ -841,7 +841,7 @@ export default function Clients() {
       </header>
 
       <section className='flex flex-col w-full mx-auto overflow-hidden h-[90%]'>
-        <div className='flex justify-center mb-2.5'>
+        <div className='flex justify-center mb-4 lg:mb-6'>
           <div className='w-1/2 max-w-[400px] relative flex items-center'>
             <Input type='text' placeHolder='Buscar' className='w-full' />
             <Search className='absolute right-3 w-4 h-4 stroke-[var(--primary)]/50' />
