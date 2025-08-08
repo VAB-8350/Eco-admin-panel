@@ -1,10 +1,11 @@
 import BigTable from '@/components/MyComponents/BigTable'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Search, Plus, Pencil, UserRound, Building, Mail, Copy } from 'lucide-react'
+import { Search, Plus, Pencil, UserRound, Factory, Mail, Copy } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import SimpleToast from '@/components/MyComponents/SimpleToast'
+import { Badge } from '@/components/ui/badge'
 
 export default function Clients() {
 
@@ -16,8 +17,8 @@ export default function Clients() {
       size: 70,
       cell: ({ row: { original } }) => (
         original.customer_type === 'INDIVIDUAL'
-          ? <div className='flex gap-1 items-center text-sky-500'><UserRound className='w-5 h-5' /> Persona</div>
-          : <div className='flex gap-1 items-center text-fuchsia-500'><Building className='w-5 h-5' /> Empresa</div>
+          ? <Badge variant='outline' className=''><UserRound className=' stroke-sky-500' /> Persona</Badge>
+          : <Badge variant='outline' className=''><Factory className='stroke-purple-600' /> Empresa</Badge>
       )
     },
     {
