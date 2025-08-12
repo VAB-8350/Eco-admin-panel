@@ -31,6 +31,43 @@ const contactTypes = [
   { value: 'OTHER', label: 'Otro' }
 ]
 
+const b2bRoles = [
+  { value: 'OWNER', label: 'Propietario / Socio' },
+  { value: 'FOUNDER', label: 'Fundador' },
+  { value: 'CEO', label: 'Director Ejecutivo (CEO)' },
+  { value: 'CTO', label: 'Director de Tecnología (CTO)' },
+  { value: 'CFO', label: 'Director Financiero (CFO)' },
+  { value: 'COO', label: 'Director de Operaciones (COO)' },
+  { value: 'DIRECTOR', label: 'Director' },
+  { value: 'MANAGER', label: 'Gerente' },
+  { value: 'SUPERVISOR', label: 'Supervisor' },
+  { value: 'TEAM_LEAD', label: 'Líder de Equipo' },
+  { value: 'SENIOR_SPECIALIST', label: 'Especialista Senior' },
+  { value: 'SPECIALIST', label: 'Especialista' },
+  { value: 'ANALYST', label: 'Analista' },
+  { value: 'COORDINATOR', label: 'Coordinador' },
+  { value: 'ASSISTANT', label: 'Asistente' },
+  { value: 'INTERN', label: 'Practicante / Interno' },
+  { value: 'CONSULTANT', label: 'Consultor' },
+  { value: 'FREELANCER', label: 'Freelancer' },
+  // { value: 'OTHER', label: 'Otro' }
+]
+
+const b2cRoles = [
+  { value: 'SELF', label: 'Yo mismo' },
+  { value: 'SPOUSE_PARTNER', label: 'Cónyuge / Pareja' },
+  { value: 'PARENT', label: 'Padre / Madre' },
+  { value: 'CHILD', label: 'Hijo / Hija' },
+  { value: 'SIBLING', label: 'Hermano / Hermana' },
+  { value: 'GRANDPARENT', label: 'Abuelo / Abuela' },
+  { value: 'GRANDCHILD', label: 'Nieto / Nieta' },
+  { value: 'OTHER_FAMILY', label: 'Otro familiar' },
+  { value: 'CAREGIVER', label: 'Cuidador' },
+  { value: 'EMERGENCY_CONTACT', label: 'Contacto de emergencia' },
+  { value: 'FRIEND', label: 'Amigo / Amiga' },
+  { value: 'OTHER', label: 'Otro' }
+]
+
 
 export default function ContactForm({ handleSubmit, defaultValues }) {
 
@@ -189,17 +226,26 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor={field.name} className='font-bold'>Rol</FormLabel>
-                                
+
                   <FormControl>
-                    <Input
-                      id={field.name}
-                      placeholder='Gerente de Compras'
-                      type='text'
-                      {...field}
-                      disabled={isSubmitting}
-                    />
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <SelectTrigger className='w-full'>
+                        <SelectValue placeholder='Tipo de contacto' />
+                      </SelectTrigger>
+  
+                      <SelectContent>
+                        {[...b2bRoles, ...b2cRoles].map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
-                                
+
                   <FormMessage />
                 </FormItem>
               )}
