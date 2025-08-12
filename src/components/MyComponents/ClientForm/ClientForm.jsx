@@ -92,43 +92,44 @@ export default function ClientForm({ defaultValues, editMode = false }) {
     else {
       console.log('Creando cliente...')
       const body = {
-        'customer_type': isPerson ? 'INDIVIDUAL' : 'BUSINESS',
-        'internal_notes': { 'metadata':  data.note },
-        'identification_type': isPerson ? 'AR_DNI' : 'AR_CUIT',
-        'identification_number': data.DNI || data.CUIT,
-        'customer_details': {
-          // 'company_name': !isPerson ? data.lastName : '',
-          // 'fantasy_name': !isPerson ? data.name : '',
-          'first_name': isPerson ? data.name : '',
-          // 'second_name': 'Carlos',
-          'first_surname': isPerson ? data.lastName : '',
-          // 'second_surname': 'Gómez',
-          // 'birth_date': '1980-01-01'
+        customer_type: isPerson ? 'INDIVIDUAL' : 'BUSINESS',
+        internal_notes: { metadata: data.note },
+        identification_type: isPerson ? 'AR_DNI' : 'AR_CUIT',
+        identification_number: data.DNI || data.CUIT,
+        customer_details: {
+          // company_name: !isPerson ? data.lastName : '',
+          // fantasy_name: !isPerson ? data.name : '',
+          first_name: isPerson ? data.name : '',
+          // second_name: 'Carlos',
+          first_surname: isPerson ? data.lastName : '',
+          // second_surname: 'Gómez',
+          // birth_date: '1980-01-01'
         },
-        'address': addresses.map(address => {
+        address: addresses.map(address => {
           return {
-            'address_type': address.place,
-            'street': address.address,
-            'city': address.city,
-            'state_province': address.region,
-            'zip_code': address.zip,
-            'country_code': address.country,
-            'is_primary': address.id === shippingAddress,
+            address_type: address.place,
+            street: address.address,
+            city: address.city,
+            state_province: address.region,
+            zip_code: address.zip,
+            country_code: address.country,
+            is_primary: address.id === shippingAddress,
+            // internal_notes: { metadata: address.note },
           }
         }),
-        'customer_contacts': contacts.map(contact => {
+        customer_contacts: contacts.map(contact => {
           return {
-            'contact_type': contact.type,
-            'first_name': contact.firstName,
-            'last_name': contact.lastName,
-            'role': contact.role,
-            // 'is_primary': contact.id === primaryContact,
-            'internal_notes': contact.internalNotes,
-            'contact_methods': contact.contactMethods.map(cm => {
+            contact_type: contact.type,
+            first_name: contact.firstName,
+            last_name: contact.lastName,
+            role: contact.role,
+            // is_primary: contact.id === primaryContact,
+            internal_notes: contact.internalNotes,
+            contact_methods: contact.contactMethods.map(cm => {
               return {
-                'type': cm.type,
-                'value': cm.value,
-                'is_primary': cm.primary,
+                type: cm.type,
+                value: cm.value,
+                is_primary: cm.primary,
               }
             })
           }
