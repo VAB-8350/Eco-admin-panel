@@ -435,13 +435,13 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                         </Badge>
                       }
                     </h4>
-                    <p className='text-xs text-muted-foreground flex gap-2'>
+                    <p className='text-xs text-muted-foreground flex gap-2 flex-wrap'>
                       {contact.contactMethods
                         .filter(method => method.value)
                         .map(method => (
                           <span
                             key={method.type}
-                            className={method.primary ? 'font-semibold text-green-600 dark:text-green-500' : ''}
+                            className={`text-nowrap ${method.primary ? 'font-semibold text-green-600 dark:text-green-500' : ''}`}
                           >
                             {method.value}
                           </span>
@@ -557,7 +557,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                       }
                     </h4>
                     <p className='text-xs text-muted-foreground'>
-                      {address.country === 'ARG' ? 'Argentina' : address.country}, {provincesAr.find(p => p.code === address.region)?.name}, {address.city}, {address.zip}
+                      {address.country === 'AR' ? 'Argentina' : address.country}, {provincesAr.find(p => p.code === address.region)?.name}, {address.city}, {address.zip}
                     </p>
                   </div>
 
