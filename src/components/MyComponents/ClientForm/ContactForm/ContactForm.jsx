@@ -45,6 +45,7 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
       phone: defaultValues?.contactMethods?.find(cm => cm.type === 'PHONE_PERSONAL')?.value || '',
       whatsapp: defaultValues?.contactMethods?.find(cm => cm.type === 'WHATSAPP')?.value || '',
       email: defaultValues?.contactMethods?.find(cm => cm.type === 'EMAIL')?.value || '',
+      note: defaultValues?.internalNotes?.metadata || '',
     },
     mode: 'onSubmit', // Solo validar al enviar
     reValidateMode: 'onChange' // Re-validar en tiempo real después del primer envío
@@ -79,6 +80,7 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
     if (!isValid) return
 
     const body = {
+      ...defaultValues,
       firstName: data.firstName,
       lastName: data.lastName,
       internalNotes: { metadata: data.note },
@@ -312,7 +314,9 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
           className='w-fit self-end font-bold'
           disabled={isSubmitting}
         >
-              Agregar Contacto
+          {
+            defaultValues.id ? 'Guardar Cambios' : 'Agregar Contacto'
+          }
         </Button>
       </form>
     </Form>

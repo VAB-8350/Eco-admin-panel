@@ -47,7 +47,7 @@ import useClientQueries from './useClientQueries'
 
 
 
-export default function ClientForm({ defaultValues }) {
+export default function ClientForm({ defaultValues, editMode = false }) {
 
   // Local State
   const [type, setType] = useState(defaultValues?.type || 'INDIVIDUAL')
@@ -83,6 +83,60 @@ export default function ClientForm({ defaultValues }) {
   const onSubmit = async (data) => {
 
     if (!validate()) return
+
+    const isPerson = !!data.DNI
+
+    if  (editMode){
+      console.log('Editando cliente...')
+    }
+    else {
+      console.log('Creando cliente...')
+      const body = {
+        'customer_type': isPerson ? 'INDIVIDUAL' : 'BUSINESS',
+        'internal_notes': { 'metadata':  data.note },
+        'identification_type': isPerson ? 'AR_DNI' : 'AR_CUIT',
+        'identification_number': data.DNI || data.CUIT,
+        'customer_details': {
+          // 'company_name': !isPerson ? data.lastName : '',
+          // 'fantasy_name': !isPerson ? data.name : '',
+          'first_name': isPerson ? data.name : '',
+          // 'second_name': 'Carlos',
+          'first_surname': isPerson ? data.lastName : '',
+          // 'second_surname': 'Gómez',
+          // 'birth_date': '1980-01-01'
+        },
+        'address': addresses.map(address => {
+          return {
+            'address_type': address.place,
+            'street': address.address,
+            'city': address.city,
+            'state_province': address.region,
+            'zip_code': address.zip,
+            'country_code': address.country,
+            'is_primary': address.id === shippingAddress,
+          }
+        }),
+        'customer_contacts': contacts.map(contact => {
+          return {
+            'contact_type': contact.type,
+            'first_name': contact.firstName,
+            'last_name': contact.lastName,
+            'role': contact.role,
+            // 'is_primary': contact.id === primaryContact,
+            'internal_notes': contact.internalNotes,
+            'contact_methods': contact.contactMethods.map(cm => {
+              return {
+                'type': cm.type,
+                'value': cm.value,
+                'is_primary': cm.primary,
+              }
+            })
+          }
+        })
+      }
+      console.log(body)
+      createClientMutation.mutate(body)
+    }
 
     console.log({
       ...data,
@@ -143,10 +197,28 @@ export default function ClientForm({ defaultValues }) {
   }
 
   const addContact = (data) => {
-    const newContact = { ...data, id: crypto.randomUUID() }
-    setContacts([...contacts, newContact])
-    if (primaryContact === null) setPrimaryContact(newContact.id)
-    setOpenContact(false)
+
+    const isEdited = !!data.id
+    
+    if (isEdited) {
+      // Editar contacto existente
+      const updatedContacts = contacts.map(contact => 
+        contact.id === data.id ? { ...contact, ...data } : contact
+      )
+      setContacts(updatedContacts)
+      if (primaryContact === null) setPrimaryContact(data.id)
+      setOpenContact(false)
+    }
+    
+    else {
+      // Agregar nuevo contacto
+      const newContact = { ...data, id: crypto.randomUUID() }
+      setContacts([...contacts, newContact])
+      if (primaryContact === null) setPrimaryContact(newContact.id)
+      setOpenContact(false)
+    
+    }
+
   }
 
   return (

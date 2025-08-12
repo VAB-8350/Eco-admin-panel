@@ -96,7 +96,7 @@ export default function EditClients() {
         <ScrollArea className='flex flex-col w-full mx-auto overflow-hidden h-[90%]'>
           {
             mounted && !isError &&
-            <ClientForm setOpen={setOpen} defaultValues={defaultVal} />
+            <ClientForm setOpen={setOpen} defaultValues={defaultVal} editMode />
           }
           {
             !isLoading && isError && <p>Error al cargar los datos del cliente</p>
