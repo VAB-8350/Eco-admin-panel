@@ -12,6 +12,8 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
+  SelectLabel,
+  SelectGroup
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
@@ -65,7 +67,6 @@ const b2cRoles = [
   { value: 'CAREGIVER', label: 'Cuidador' },
   { value: 'EMERGENCY_CONTACT', label: 'Contacto de emergencia' },
   { value: 'FRIEND', label: 'Amigo / Amiga' },
-  { value: 'OTHER', label: 'Otro' }
 ]
 
 
@@ -235,13 +236,31 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
                       <SelectTrigger className='w-full'>
                         <SelectValue placeholder='Tipo de contacto' />
                       </SelectTrigger>
-  
+
+
                       <SelectContent>
-                        {[...b2bRoles, ...b2cRoles].map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            {type.label}
-                          </SelectItem>
-                        ))}
+                        <SelectGroup>
+                          <SelectLabel className='mt-2'>Roles - B2B</SelectLabel>
+                          {b2bRoles.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+
+                        <SelectGroup>
+                          <SelectLabel className='mt-2'>Roles - B2C</SelectLabel>
+                          {b2cRoles.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+
+                        <SelectGroup>
+                          <SelectLabel className='mt-2'>Ninguno de los anteriores</SelectLabel>
+                          <SelectItem value='OTHER'>Otro</SelectItem>
+                        </SelectGroup>
                       </SelectContent>
                     </Select>
                   </FormControl>
