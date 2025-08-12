@@ -35,14 +35,16 @@ const contactTypes = [
 export default function ContactForm({ handleSubmit, defaultValues }) {
 
   // Local State
-  const [primary, setPrimary] = useState('EMAIL')
+  const [primary, setPrimary] = useState(defaultValues.contactMethods?.find(cm => cm.primary)?.type || 'EMAIL')
 
   // Use standard form with static schema
   const form = useForm({
     resolver: zodResolver(contactSchema),
     defaultValues: {
       ...defaultValues,
-      primary: 'EMAIL' // Incluir el campo primary en los valores por defecto
+      phone: defaultValues?.contactMethods?.find(cm => cm.type === 'PHONE_PERSONAL')?.value || '',
+      whatsapp: defaultValues?.contactMethods?.find(cm => cm.type === 'WHATSAPP')?.value || '',
+      email: defaultValues?.contactMethods?.find(cm => cm.type === 'EMAIL')?.value || '',
     },
     mode: 'onSubmit', // Solo validar al enviar
     reValidateMode: 'onChange' // Re-validar en tiempo real después del primer envío
@@ -77,10 +79,12 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
     if (!isValid) return
 
     const body = {
-      first_name: data.name,
-      last_name: data.lastName,
-      internal_notes: { metadata: data.note },
-      contact_methods: [
+      firstName: data.firstName,
+      lastName: data.lastName,
+      internalNotes: { metadata: data.note },
+      role: data.role,
+      type: data.type,
+      contactMethods: [
         {
           type: 'PHONE_PERSONAL',
           value: data.phone,
@@ -110,7 +114,7 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
           <div className='col-span-6'>
             <FormField
               control={form.control}
-              name='name'
+              name='firstName'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor={field.name} className='font-bold'>Nombre</FormLabel>

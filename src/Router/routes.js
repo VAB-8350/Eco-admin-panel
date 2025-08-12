@@ -58,7 +58,7 @@ const privateRoutes = [
     roles: [ROLE_ADMIN, ROLE_USER]
   },
   {
-    path: '/edit-client/*',
+    path: '/edit-client/:id',
     label: 'Edit Client',
     component: EditClient,
     roles: [ROLE_ADMIN, ROLE_USER]

@@ -50,15 +50,16 @@ import useClientQueries from './useClientQueries'
 export default function ClientForm({ defaultValues }) {
 
   // Local State
-  const [type, setType] = useState('INDIVIDUAL')
-  const [addresses, setAddresses] = useState([])
-  const [contacts, setContacts] = useState([])
+  const [type, setType] = useState(defaultValues?.type || 'INDIVIDUAL')
+  const [addresses, setAddresses] = useState(defaultValues?.addresses || [])
+  const [contacts, setContacts] = useState(defaultValues?.contacts || [])
   const [openDir, setOpenDir] = useState(false)
   const [openContact, setOpenContact] = useState(false)
-  const [primaryContact, setPrimaryContact] = useState(null)
+  const [primaryContact, setPrimaryContact] = useState(defaultValues?.contacts.find(contact => contact.primary).id || null)
   const [shippingAddress, setShippingAddress] = useState(null)
   const [billingAddress, setBillingAddress] = useState(null)
   const [errors, setErrors] = useState({})
+  const [defaultContactForm, setDefaultContactForm] = useState({})
 
   // Hooks
   const {
@@ -310,8 +311,8 @@ export default function ClientForm({ defaultValues }) {
                 <h3 className='text-2xl font-bold'>Contactos</h3>
               
                 <DialogTrigger asChild>
-                  
-                  <Button className='font-bold hover:cursor-pointer' variant='outline'>
+
+                  <Button className='font-bold hover:cursor-pointer' variant='outline' type='button' onClick={() => setDefaultContactForm({})}>
                     <span className='hidden lg:flex gap-2 items-center'><Plus className='stroke-3' />Agregar</span>
                     <span className='inline-block lg:hidden'><Plus className='stroke-3' /></span>
                   </Button>
@@ -336,7 +337,7 @@ export default function ClientForm({ defaultValues }) {
                 </DialogDescription>
               </DialogHeader>
 
-              <ContactForm handleSubmit={addContact} />
+              <ContactForm handleSubmit={addContact} defaultValues={defaultContactForm} />
             </DialogContent>
           </Dialog>
 
@@ -353,7 +354,7 @@ export default function ClientForm({ defaultValues }) {
                   <ContactRound />
                   <div>
                     <h4 className='text-md font-bold'>
-                      {contact.first_name} {contact.last_name}
+                      {contact.firstName} {contact.lastName}
                       {
                         primaryContact === contact.id &&
                         <Badge variant='outline' className='ml-2'>
@@ -363,7 +364,7 @@ export default function ClientForm({ defaultValues }) {
                       }
                     </h4>
                     <p className='text-xs text-muted-foreground flex gap-2'>
-                      {contact.contact_methods
+                      {contact.contactMethods
                         .filter(method => method.value)
                         .map(method => (
                           <span
@@ -388,6 +389,10 @@ export default function ClientForm({ defaultValues }) {
                     </button>
                     <button
                       type='button'
+                      onClick={() => {
+                        setDefaultContactForm(contact)
+                        setOpenContact(true)
+                      }}
                       className='hover:text-blue-500 hover:cursor-pointer ml-auto transition-colors duration-200'
                     >
                       <Pencil className='w-4 h-4' />
