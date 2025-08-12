@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 // Schema principal que incluye toda la validación condicional
 export const contactSchema = z.object({
-  name: z.string({
+  firstName: z.string({
     required_error: 'El Nombre es requerido.',
     invalid_type_error: 'El Nombre es requerido.'
   }).min(2, 'El Nombre es requerido.'),
