@@ -42,7 +42,7 @@ const addressTypes = [
 
 const defaultValues = {
   place: '',
-  country: 'ARG',
+  country: 'AR',
   address: '',
   region: '',
   zip: '',
@@ -120,7 +120,7 @@ export default function AddAddress({ submit }) {
                     </SelectTrigger>
 
                     <SelectContent>
-                      <SelectItem value={'ARG'}>Argentina</SelectItem>
+                      <SelectItem value={'AR'}>Argentina</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
