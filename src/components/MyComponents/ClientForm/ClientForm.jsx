@@ -349,7 +349,7 @@ export default function ClientForm({ defaultValues }) {
                 <p className='text-sm text-muted-foreground'>Para comenzar, haga clic en "Agregar".</p>
               </div>
             ) : (
-              contacts.reverse().map((contact) => (
+              contacts.map((contact) => (
                 <div key={contact.id} className='border-b border-border py-2 last:border-b-0 flex items-center gap-4 px-4 relative hover:bg-[#f9f9f9] hover:dark:bg-[#181818] transition-colors duration-200'>
                   <ContactRound />
                   <div>
@@ -462,7 +462,7 @@ export default function ClientForm({ defaultValues }) {
                 <p className='text-sm text-muted-foreground'>Para comenzar, haga clic en "Agregar".</p>
               </div>
             ) : (
-              addresses.reverse().map((address) => (
+              addresses.map((address) => (
                 <div key={address.id} className='border-b border-border py-2 last:border-b-0 flex items-center gap-4 px-4 relative hover:bg-[#f9f9f9] hover:dark:bg-[#181818] transition-colors duration-200'>
                   <MapPinned />
                   <div>
