@@ -240,7 +240,7 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
 
                       <SelectContent>
                         <SelectGroup>
-                          <SelectLabel className='mt-2'>Roles - B2B</SelectLabel>
+                          <SelectLabel>Roles - B2B</SelectLabel>
                           {b2bRoles.map((type) => (
                             <SelectItem key={type.value} value={type.value}>
                               {type.label}
