@@ -9,30 +9,29 @@ import { Badge } from '@/components/ui/badge'
 import useAxiosPrivate from '@/hooks/useAxiosPrivate'
 import { useQuery } from '@tanstack/react-query'
 
-//! Eliminar datos falsos al conectar
-import { data } from '@/Helpers/ClientMockData'
-
 export default function Clients() {
 
   //Hooks
   const axiosPrivate = useAxiosPrivate()
-  // const { data, isLoading, isRefetching, isError, refetch, error } = useQuery({
+  const { data, isLoading, isRefetching, isError } = useQuery({
 
-  //   queryKey: ['customers'],
-  //   queryFn: async () => {
-  //     const { data } = await axiosPrivate.get('/customers')
-  //     return data
-  //   },
-  // })
+    queryKey: ['customers'],
+    queryFn: async () => {
+      const { data } = await axiosPrivate.get('/customers')
+      return data
+    },
+  })
+
+  console.log(data)
 
   const columns = [
     {
       header: 'Tipo',
-      accessorKey: 'customer_type',
+      accessorKey: 'customerType',
       enableSorting: false,
-      size: 70,
+      size: 100,
       cell: ({ row: { original } }) => (
-        original.customer_type === 'INDIVIDUAL'
+        original.customerType === 'INDIVIDUAL'
           ? <Badge variant='outline' className=''><UserRound className=' stroke-sky-500' /> Persona</Badge>
           : <Badge variant='outline' className=''><Factory className='stroke-purple-600' /> Empresa</Badge>
       )
@@ -40,39 +39,52 @@ export default function Clients() {
     {
       header: 'Nombre',
       enableSorting: false,
+      size: 100,
       cell: ({ row: { original } }) => (
-        original.customer_details.first_name ?? original.customer_details.fantasy_name
+        original.customerDetails.firstName ?? original.customerDetails.fantasyName
       )
     },
     {
       header: 'Apellido',
       enableSorting: false,
       cell: ({ row: { original } }) => (
-        original.customer_details.first_surname ?? original.customer_details.company_name
+        original.customerDetails.firstSurname ?? original.customerDetails.companyName
       )
     },
     {
-      header: 'Email',
+      header: 'Contacto principal',
       enableSorting: false,
       cell: ({ row: { original } }) => {
-        const primaryContact = original.customer_contact.contact_methods.find(m => m.isPrimary)
-        const email = primaryContact?.value
+        const primaryContact = original.contacts.find(c => c.isMainContact)
+        const contactMethod = primaryContact?.contactMethods.find(cm => cm.isPrimary) ?? primaryContact?.contactMethods[0]
+
         const handleCopy = () => {
-          if (email) {
-            navigator.clipboard.writeText(email)
+          if (contactMethod) {
+            navigator.clipboard.writeText(contactMethod.value)
             toast(<SimpleToast message='Email copiado al portapapeles' state='success' />)
           }
         }
+
+        if (!contactMethod) {
+          return (
+            <div className='text-gray-500 hover:cursor-not-allowed'>Sin contacto</div>
+          )
+        }
+
         return (
           <div className='flex gap-1 items-center'>
             <button type='button' title='Copiar email' onClick={handleCopy} className='hover:opacity-100 opacity-50 duration-300 outline-none hover:cursor-pointer'>
               <Copy className='w-4 h-4' />
             </button>
-            <a title='Escribir email' href={`mailto:${email}`} className='hover:opacity-100 opacity-50 duration-300 outline-none hover:cursor-pointer p-1'>
-              <Mail className='w-4 h-4'/>
-            </a>
+            {
+              contactMethod?.type === 'EMAIL' && (
+                <a title='Escribir email' href={`mailto:${contactMethod?.value}`} className='hover:opacity-100 opacity-50 duration-300 outline-none hover:cursor-pointer p-1'>
+                  <Mail className='w-4 h-4'/>
+                </a>
+              )
+            }
             <button type='button' title='Copiar email' onClick={handleCopy} className='hover:text-green-500 duration-300 outline-none hover:cursor-pointer p-1 underline'>
-              {email}
+              {contactMethod?.value}
             </button>
           </div>
         )
@@ -82,7 +94,7 @@ export default function Clients() {
       header: 'Direccion',
       enableSorting: false,
       cell: ({ row: { original } }) => {
-        const address = original.address
+        const address = original.addresses.find(a => a.isPrimary)
 
         const handleCopy = () => {
           if (address) {
@@ -149,15 +161,18 @@ export default function Clients() {
           </div>
         </div>
 
-        <BigTable
-          columns={columns}
-          data={data}
-          // isLoading={isLoading || isRefetching}
-          hoverRow
-          // enableLazyLoad={!isRefetching && hasNextPage}
-          // loadingLazyLoad={hasNextPage && isFetchingNextPage}
-          // handleLazyLoad={fetchNextPage}
-        />
+        {
+          !isError &&
+          <BigTable
+            columns={columns}
+            data={data}
+            isLoading={isLoading || isRefetching}
+            hoverRow
+            // enableLazyLoad={!isRefetching && hasNextPage}
+            // loadingLazyLoad={hasNextPage && isFetchingNextPage}
+            // handleLazyLoad={fetchNextPage}
+          />
+        }
       </section>
     </main>
   )
