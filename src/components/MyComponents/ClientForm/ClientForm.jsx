@@ -44,8 +44,10 @@ import { Truck } from 'lucide-react'
 import { FileText } from 'lucide-react'
 import { provincesAr } from '@/Helpers/RegionsAr'
 import useClientQueries from './useClientQueries'
-
-
+import LoadScreenBlur from '@/components/MyComponents/LoadScreenBlur'
+import { toast } from 'sonner'
+import SimpleToast from '@/components/MyComponents/SimpleToast'
+import { useNavigate } from 'react-router-dom'
 
 export default function ClientForm({ defaultValues, editMode = false }) {
 
@@ -60,17 +62,23 @@ export default function ClientForm({ defaultValues, editMode = false }) {
   const [billingAddress, setBillingAddress] = useState(null)
   const [errors, setErrors] = useState({})
   const [defaultContactForm, setDefaultContactForm] = useState({})
+  const [loading, setLoading] = useState({
+    title: '',
+    process: '',
+    state: false
+  })
 
   // Hooks
+  const navigate = useNavigate()
   const {
     createClientMutation,
-    modifyClientMutation,
-    createAddressMutation,
-    modifyAddressMutation,
-    deleteAddressMutation,
-    createContactMutation,
-    modifyContactMutation,
-    deleteContactMutation,
+    // modifyClientMutation,
+    // createAddressMutation,
+    // modifyAddressMutation,
+    // deleteAddressMutation,
+    // createContactMutation,
+    // modifyContactMutation,
+    // deleteContactMutation
   } = useClientQueries()
   const form = useForm({
     resolver: (() => zodResolver(clientSchema(type)))(),
@@ -86,11 +94,15 @@ export default function ClientForm({ defaultValues, editMode = false }) {
 
     const isPerson = !!data.DNI
 
-    if  (editMode){
+    if (editMode) {
       console.log('Editando cliente...')
-    }
-    else {
-      console.log('Creando cliente...')
+    } else {
+      setLoading({
+        title: 'Creando cliente...',
+        process: '',
+        state: true
+      })
+      
       const body = {
         customer_type: isPerson ? 'INDIVIDUAL' : 'BUSINESS',
         internal_notes: { metadata: data.note || '' },
@@ -136,18 +148,32 @@ export default function ClientForm({ defaultValues, editMode = false }) {
           }
         })
       }
-      console.log(body)
-      createClientMutation.mutate(body)
+
+      const res = await createClientMutation.mutateAsync(body)
+
+      if (!res) {
+        toast(<SimpleToast message='Ups! Ocurrio un error...' state='error' />)
+      } else {
+        navigate('/clients')
+        toast(<SimpleToast message='Cliente creado exitosamente!' state='success' />)
+      }
     }
 
-    console.log({
-      ...data,
-      addresses,
-      contacts,
-      primaryContact,
-      shippingAddress,
-      billingAddress
+    setLoading({
+      title: '',
+      process: '',
+      state: false
     })
+
+    //! borrar luego
+    // console.log({
+    //   ...data,
+    //   addresses,
+    //   contacts,
+    //   primaryContact,
+    //   shippingAddress,
+    //   billingAddress
+    // })
 
   }
 
@@ -225,6 +251,11 @@ export default function ClientForm({ defaultValues, editMode = false }) {
 
   return (
     <div className='lg:px-5'>
+
+      {
+        loading.state && <LoadScreenBlur title={loading.title} process={loading.process} />
+      }
+
       <section className='grid grid-cols-12 lg:gap-9 gap-x-0 gap-y-4'>
         <div className='col-span-12 lg:col-span-7 order-2 lg:order-1'>
           <header className='flex justify-between items-center mb-5'>
