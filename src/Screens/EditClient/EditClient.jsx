@@ -77,7 +77,7 @@ export default function EditClients() {
     <Dialog open={open} onOpenChange={setOpen}>
       <main className='h-[calc(100vh-180px)]'>
         <header className='flex justify-between flex-row gap-5 h-[10%] lg:h-[15%]'>
-          <h1 className='text-4xl font-bold'>Editar Cliente</h1>
+          <h1 className='text-2xl lg:text-4xl font-bold'>Editar Cliente</h1>
 
           <div className='flex gap-3'>
             <Button type='button' className='font-bold w-fit text-md hover:cursor-pointer' form='client-form' variant='outline' asChild>

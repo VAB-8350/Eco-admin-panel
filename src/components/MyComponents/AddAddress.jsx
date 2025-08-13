@@ -161,7 +161,7 @@ export default function AddAddress({ submit }) {
                     defaultValue={field.value}
                   >
                     <SelectTrigger className='w-full'>
-                      <SelectValue placeholder='Seleccione una region' />
+                      <SelectValue placeholder='Cordoba' />
                     </SelectTrigger>
 
                     <SelectContent>

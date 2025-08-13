@@ -188,7 +188,7 @@ export default function Team() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <header className='flex justify-between items-center gap-5'>
-        <h1 className='text-4xl font-bold text-left w-full'>{showBans ? 'Baneados' : 'Equipo'}</h1>
+        <h1 className='text-2xl lg:text-4xl font-bold text-left w-full'>{showBans ? 'Baneados' : 'Equipo'}</h1>
 
         <div className='flex items-center gap-2'>
           {

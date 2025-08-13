@@ -55,8 +55,9 @@ export default function Clients() {
       header: 'Contacto principal',
       enableSorting: false,
       cell: ({ row: { original } }) => {
-        const primaryContact = original.contacts.find(c => c.isMainContact)
+        const primaryContact = original.contacts.find(c => c.isPrimary)
         const contactMethod = primaryContact?.contactMethods.find(cm => cm.isPrimary) ?? primaryContact?.contactMethods[0]
+        console.log()
 
         const handleCopy = () => {
           if (contactMethod) {
@@ -143,7 +144,7 @@ export default function Clients() {
   return (
     <main className='h-[calc(100vh-180px)]'>
       <header className='flex justify-between flex-row gap-5 h-[10%] lg:h-[15%]'>
-        <h1 className='text-4xl font-bold'>Clientes</h1>
+        <h1 className='text-2xl lg:text-4xl font-bold'>Clientes</h1>
 
         <Button className='font-bold' asChild>
           <Link to='/add-client'>

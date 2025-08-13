@@ -224,9 +224,9 @@ export default function ClientForm({ defaultValues, editMode = false }) {
   }
 
   return (
-    <div className='px-5'>
-      <section className='grid grid-cols-12 gap-9'>
-        <div className='col-span-7'>
+    <div className='lg:px-5'>
+      <section className='grid grid-cols-12 lg:gap-9 gap-x-0 gap-y-4'>
+        <div className='col-span-12 lg:col-span-7 order-2 lg:order-1'>
           <header className='flex justify-between items-center mb-5'>
             <h3 className='text-2xl font-bold'>Cliente</h3>
           </header>
@@ -359,7 +359,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
           </Form>
         </div>
 
-        <Card className='col-span-5'>
+        <Card className='col-span-12 lg:col-span-5 order-1 lg:order-2'>
           <CardHeader>
             <CardTitle className='font-bold flex items-center gap-2 text-xl'>
               <Lightbulb className='w-5 h-5 dark:stroke-amber-300 stroke-amber-500'/> Consejos
@@ -378,7 +378,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
           </CardContent>
         </Card>
 
-        <div className='col-span-6'>
+        <div className='col-span-12 lg:col-span-6 order-3'>
           <Dialog open={openContact} onOpenChange={setOpenContact}>
             <div>
               <header className='flex justify-between items-center mb-5'>
@@ -418,7 +418,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
           <ScrollArea className='w-full h-[250px] pr-5' id='contacts-scroll-area'>
 
             {contacts.length === 0 ? (
-              <div className='w-full h-full flex flex-col items-center justify-center mt-10'>
+              <div className='w-full h-full flex flex-col items-center justify-center mt-13'>
                 <h3 className='text-2xl font-bold'>Agregue un contacto</h3>
                 <p className='text-sm text-muted-foreground'>Para comenzar, haga clic en "Agregar".</p>
               </div>
@@ -489,7 +489,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
           </ScrollArea>
         </div>
 
-        <div className='col-span-6'>
+        <div className='col-span-12 lg:col-span-6 order-4'>
           <Dialog open={openDir} onOpenChange={setOpenDir}>
             <div className='flex flex-col'>
               <header className='flex justify-between items-center mb-5'>
@@ -531,7 +531,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
           <ScrollArea className='flex flex-col gap-3 h-[250px] overflow-y-auto pr-2' id='addresses-scroll-area'>
 
             {addresses.length === 0 ? (
-              <div className='w-full h-full flex flex-col items-center justify-center mt-10'>
+              <div className='w-full h-full flex flex-col items-center justify-center mt-13'>
                 <h3 className='text-2xl font-bold'>Agregue una Dirección</h3>
                 <p className='text-sm text-muted-foreground'>Para comenzar, haga clic en "Agregar".</p>
               </div>

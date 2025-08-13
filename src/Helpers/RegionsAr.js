@@ -1,5 +1,4 @@
 export const provincesAr = [
-  { name: 'Antartida e Islas del Atlantico', code: 'AN' },
   { name: 'Buenos Aires', code: 'B' },
   { name: 'Catamarca', code: 'K' },
   { name: 'Chaco', code: 'H' },
