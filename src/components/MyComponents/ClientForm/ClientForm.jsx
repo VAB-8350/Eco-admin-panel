@@ -93,7 +93,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
       console.log('Creando cliente...')
       const body = {
         customer_type: isPerson ? 'INDIVIDUAL' : 'BUSINESS',
-        internal_notes: { metadata: data.note },
+        internal_notes: { metadata: data.note || '' },
         identification_type: isPerson ? 'AR_DNI' : 'AR_CUIT',
         identification_number: data.DNI || data.CUIT,
         customer_details: {
@@ -113,9 +113,9 @@ export default function ClientForm({ defaultValues, editMode = false }) {
             state_province: address.region,
             zip_code: address.zip,
             country_code: address.country,
-            is_primary: address.id === shippingAddress,
-            internal_notes: { metadata: address.note || '' },
             additional_info: address.depto || '',
+            is_primary: address.id === shippingAddress,
+            // internal_notes: { metadata: address.note || '' },
           }
         }),
         customer_contacts: contacts.map(contact => {
