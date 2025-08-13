@@ -53,7 +53,7 @@ export default function EditClients() {
           lastName: contact.lastName,
           role: contact.role,
           type: contact.type,
-          primary: contact.isMainContact,
+          primary: contact.isPrimary,
           note: contact.internalNotes.metadata,
           contactMethods: contact.contactMethods.map(method => ({
             type: method.type,

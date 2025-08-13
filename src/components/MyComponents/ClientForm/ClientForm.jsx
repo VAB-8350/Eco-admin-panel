@@ -57,7 +57,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
   const [contacts, setContacts] = useState(defaultValues?.contacts || [])
   const [openDir, setOpenDir] = useState(false)
   const [openContact, setOpenContact] = useState(false)
-  const [primaryContact, setPrimaryContact] = useState(defaultValues?.contacts.find(contact => contact.primary).id || null)
+  const [primaryContact, setPrimaryContact] = useState(defaultValues?.contacts.find(contact => contact.primary)?.id || null)
   const [shippingAddress, setShippingAddress] = useState(null)
   const [billingAddress, setBillingAddress] = useState(null)
   const [errors, setErrors] = useState({})
