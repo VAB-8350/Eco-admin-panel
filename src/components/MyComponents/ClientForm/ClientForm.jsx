@@ -109,8 +109,8 @@ export default function ClientForm({ defaultValues, editMode = false }) {
         identification_type: isPerson ? 'AR_DNI' : 'AR_CUIT',
         identification_number: data.DNI || data.CUIT,
         customer_details: {
-          // company_name: !isPerson ? data.lastName : '',
-          // fantasy_name: !isPerson ? data.name : '',
+          company_name: !isPerson ? data.lastName : '',
+          fantasy_name: !isPerson ? data.name : '',
           first_name: isPerson ? data.name : '',
           // second_name: 'Carlos',
           first_surname: isPerson ? data.lastName : '',
