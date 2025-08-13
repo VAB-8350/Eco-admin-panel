@@ -96,10 +96,11 @@ export default function Clients() {
       enableSorting: false,
       cell: ({ row: { original } }) => {
         const address = original.addresses.find(a => a.isPrimary)
+        const addressAndDepto = `${address.street}${address.additional_info ? ` - ${address.additional_info}` : ''}`
 
         const handleCopy = () => {
           if (address) {
-            navigator.clipboard.writeText(address)
+            navigator.clipboard.writeText(addressAndDepto)
             toast(<SimpleToast message='Dirección copiada al portapapeles' state='success' />)
           }
         }
@@ -107,7 +108,7 @@ export default function Clients() {
         return (
           <div>
             <button type='button' title='Copiar dirección' onClick={handleCopy} className='hover:text-green-500 duration-300 outline-none hover:cursor-pointer p-1 underline'>
-              {address.street}
+              {addressAndDepto}
             </button>
           </div>
         )
