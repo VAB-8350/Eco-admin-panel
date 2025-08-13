@@ -115,6 +115,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
             country_code: address.country,
             is_primary: address.id === shippingAddress,
             internal_notes: { metadata: address.note || '' },
+            additional_info: address.depto || '',
           }
         }),
         customer_contacts: contacts.map(contact => {
