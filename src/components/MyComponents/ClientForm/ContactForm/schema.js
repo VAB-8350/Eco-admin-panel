@@ -11,10 +11,13 @@ export const contactSchema = z.object({
     invalid_type_error: 'El Apellido es requerido.'
   }).min(2, 'El Apellido es requerido.'),
   note: z.string().optional(),
-  role: z.string().optional(),
+  role: z.string({
+    required_error: 'Selecciona un Rol.',
+    invalid_type_error: 'Selecciona un Rol.'
+  }),
   type: z.enum(['EMPLOYEE', 'FAMILY', 'EMERGENCY', 'OTHER'], {
-    required_error: 'Debe seleccionar un tipo válido.',
-    invalid_type_error: 'Debe seleccionar un tipo válido.'
+    required_error: 'Selecciona un tipo.',
+    invalid_type_error: 'Selecciona un tipo.'
   }),
   email: z.string().optional(),
   phone: z.string().optional(),
