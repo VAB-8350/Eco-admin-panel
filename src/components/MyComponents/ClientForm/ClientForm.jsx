@@ -123,7 +123,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
             first_name: contact.firstName,
             last_name: contact.lastName,
             role: contact.role,
-            // is_primary: contact.id === primaryContact,
+            is_primary: contact.id === primaryContact,
             internal_notes: contact.internalNotes,
             contact_methods: contact.contactMethods.map(cm => {
               return {
