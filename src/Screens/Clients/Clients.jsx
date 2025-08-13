@@ -1,28 +1,44 @@
 import BigTable from '@/components/MyComponents/BigTable'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Search, Plus, Pencil, UserRound, Factory, Mail, Copy } from 'lucide-react'
+import { Search, Plus, Pencil, UserRound, Factory, Mail, Copy, Trash } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import SimpleToast from '@/components/MyComponents/SimpleToast'
 import { Badge } from '@/components/ui/badge'
 import useAxiosPrivate from '@/hooks/useAxiosPrivate'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import ErrorMessage from '@/components/MyComponents/ErrorMessage'
 
 export default function Clients() {
 
   //Hooks
   const axiosPrivate = useAxiosPrivate()
-  const { data, isLoading, isRefetching, isError } = useQuery({
-
+  const { data, isLoading, isRefetching, isError, refetch, error } = useQuery({
     queryKey: ['customers'],
     queryFn: async () => {
       const { data } = await axiosPrivate.get('/customers')
       return data
     },
   })
+  const deleteClientMutation = useMutation({
+    mutationFn: async (id) => {
+      const { data } = await axiosPrivate.delete(`/customers/${id}`)
+      return data
+    },
+    onSuccess: () => {
+      toast(<SimpleToast message='Cliente eliminado correctamente' state='success' />)
+      refetch()
+    },
+    onError: () => {
+      toast(<SimpleToast message='Error al eliminar el cliente' state='error' />)
+    }
+  })
 
-  console.log(data)
+  const handleDelete = (id) => {
+    const confirm = window.confirm('¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.')
+    if (confirm) deleteClientMutation.mutate(id)
+  }
 
   const columns = [
     {
@@ -117,7 +133,7 @@ export default function Clients() {
     {
       header: 'Acciones',
       enableSorting: false,
-      size: 55,
+      size: 150,
       cell: ({ row: { original } }) => {
 
         const handleCopy = () => {
@@ -128,13 +144,17 @@ export default function Clients() {
         }
 
         return (
-          <div className='flex items-center gap-4 justify-end'>
+          <div className='flex items-center gap-2 justify-end'>
             <Link className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' to={`/edit-client/${original.id}`}>
               <Pencil className='w-4 h-4' />
             </Link>
 
             <button onClick={handleCopy} title='Copiar todos los datos del cliente' className='hover:text-green-500 duration-300 outline-none hover:cursor-pointer p-1'>
               <Copy className='w-4 h-4' />
+            </button>
+
+            <button onClick={() => handleDelete(original.id)} title='Eliminar cliente' className='hover:text-red-500 duration-300 outline-none hover:cursor-pointer p-1'>
+              <Trash className='w-4 h-4' />
             </button>
           </div>
         )
@@ -162,6 +182,10 @@ export default function Clients() {
             <Search className='absolute right-3 w-4 h-4 stroke-[var(--primary)]/50' />
           </div>
         </div>
+
+        {
+          isError && <ErrorMessage message={error.message} />
+        }
 
         {
           !isError &&
