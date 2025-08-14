@@ -25,7 +25,6 @@ import { useState, useCallback, useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { contactSchema } from './schema'
 import { Separator } from '@/components/ui/separator'
-import './ContactForm.css'
 
 const contactTypes = [
   { value: 'EMPLOYEE', label: 'Empleado' },
