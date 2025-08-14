@@ -123,3 +123,23 @@
     100% { transform: translateX(200%); }
   }
 }
+
+/* esto es por los selectores de los formularios, para poner 3 puntos cuando no entra el contenido */
+.overflow-hidden > span[data-slot='select-value'] {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* esto establece un color para todos los placeholders de los inputs y textarea y selects */
+.data-\[placeholder\]\:text-muted-foreground {
+    &[data-placeholder] {
+      color: oklch(100% 0.00011 271.152 / 0.247);
+  }
+}
+
+input::placeholder, textarea::placeholder {
+  color: oklch(100% 0.00011 271.152 / 0.247);
+}

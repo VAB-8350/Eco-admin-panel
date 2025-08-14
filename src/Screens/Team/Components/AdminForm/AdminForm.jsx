@@ -88,10 +88,10 @@ export default function AdminForm({ initialVal, setOpen, refetch }) {
             name='firstName'
             render={({ field }) => (
               <FormItem>
-                <FormLabel htmlFor={field.firstName}>Nombre</FormLabel>
+                <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Nombre</FormLabel>
                 
                 <FormControl>
-                  <Input id={field.firstName} placeholder='Nombre' {...field} />
+                  <Input id={field.name} placeholder='Nombre' {...field} />
                 </FormControl>
                 
                 <FormMessage />
@@ -104,10 +104,10 @@ export default function AdminForm({ initialVal, setOpen, refetch }) {
             name='lastName'
             render={({ field }) => (
               <FormItem>
-                <FormLabel htmlFor={field.lastName}>Apellido</FormLabel>
+                <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Apellido</FormLabel>
                 
                 <FormControl>
-                  <Input id={field.lastName} placeholder='Apellido' {...field} />
+                  <Input id={field.name} placeholder='Apellido' {...field} />
                 </FormControl>
                 
                 <FormMessage />
@@ -121,7 +121,7 @@ export default function AdminForm({ initialVal, setOpen, refetch }) {
           name='email'
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={field.name}>Email</FormLabel>
+              <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Email</FormLabel>
 
               <FormControl>
                 <Input id={field.name} placeholder='example@gmail.com' {...field} />
@@ -137,11 +137,11 @@ export default function AdminForm({ initialVal, setOpen, refetch }) {
           name='role'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Role</FormLabel>
+              <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Role</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl className='w-full'>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Role' />
+                  <SelectTrigger className='w-full max-w-full overflow-hidden'>
+                    <SelectValue placeholder='Role' className='inline-block max-w-full'/>
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>

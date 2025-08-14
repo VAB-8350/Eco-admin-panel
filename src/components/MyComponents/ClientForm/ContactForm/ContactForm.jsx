@@ -25,6 +25,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { contactSchema } from './schema'
 import { Separator } from '@/components/ui/separator'
+import './ContactForm.css'
 
 const contactTypes = [
   { value: 'EMPLOYEE', label: 'Empleado' },
@@ -157,7 +158,7 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
               name='firstName'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor={field.name} className='font-bold'>Nombre</FormLabel>
+                  <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Nombre</FormLabel>
                             
                   <FormControl>
                     <Input id={field.name} placeholder='nombre' type='text' {...field} disabled={isSubmitting} />
@@ -175,7 +176,7 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
               name='lastName'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor={field.name} className='font-bold'>Apellido</FormLabel>
+                  <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Apellido</FormLabel>
                             
                   <FormControl>
                     <Input id={field.name} placeholder='Apellido' type='text' {...field} disabled={isSubmitting} />
@@ -193,15 +194,15 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
               name='type'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor={field.name} className='font-bold'>Tipo de Contacto</FormLabel>
+                  <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Tipo de Contacto</FormLabel>
 
                   <FormControl>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
-                      <SelectTrigger className='w-full'>
-                        <SelectValue placeholder='Tipo de contacto' />
+                      <SelectTrigger className='w-full max-w-full overflow-hidden'>
+                        <SelectValue placeholder='Tipo de contacto' className='inline-block max-w-full'/>
                       </SelectTrigger>
   
                       <SelectContent>
@@ -226,15 +227,15 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
               name='role'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor={field.name} className='font-bold'>Rol</FormLabel>
+                  <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Rol</FormLabel>
 
                   <FormControl>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
-                      <SelectTrigger className='w-full'>
-                        <SelectValue placeholder='Tipo de contacto' />
+                      <SelectTrigger className='w-full max-w-full overflow-hidden'>
+                        <SelectValue placeholder='Tipo de contacto' className='inline-block max-w-full'/>
                       </SelectTrigger>
 
 
@@ -282,7 +283,7 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
               name='phone'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor={field.name} className='font-bold'>Teléfono</FormLabel>
+                  <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Teléfono</FormLabel>
                                 
                   <FormControl>
                     <Input
@@ -313,7 +314,7 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
               name='whatsapp'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor={field.name} className='font-bold'>WhatsApp</FormLabel>
+                  <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>WhatsApp</FormLabel>
                                 
                   <FormControl>
                     <Input
@@ -343,7 +344,7 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
               name='email'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor={field.name} className='font-bold'>Email</FormLabel>
+                  <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Email</FormLabel>
                                 
                   <FormControl>
                     <Input id={field.name} placeholder='nombre@dominio.com' type='text' {...field} disabled={isSubmitting} />
@@ -361,7 +362,7 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
               name='note'
               render={({ field }) => (
                 <FormItem className='flex flex-col w-full h-full'>
-                  <FormLabel htmlFor={field.name} className='font-bold'>Nota</FormLabel>
+                  <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Nota</FormLabel>
                         
                   <FormControl>
                     <Textarea className='h-full resize-none' id={field.name} placeholder='Nota de recordatorio' type='text' {...field} disabled={isSubmitting} />

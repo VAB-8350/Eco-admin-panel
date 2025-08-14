@@ -76,15 +76,15 @@ export default function AddAddress({ submit }) {
             name='place'
             render={({ field }) => (
               <FormItem>
-                <FormLabel htmlFor={field.name} className='font-bold'>Lugar</FormLabel>
+                <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Lugar</FormLabel>
                   
                 <FormControl>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
-                    <SelectTrigger className='w-full'>
-                      <SelectValue placeholder='Seleccione lugar' />
+                    <SelectTrigger className='w-full max-w-full overflow-hidden'>
+                      <SelectValue placeholder='Seleccione lugar' className='inline-block max-w-full'/>
                     </SelectTrigger>
 
                     <SelectContent>
@@ -107,7 +107,7 @@ export default function AddAddress({ submit }) {
             name='country'
             render={({ field }) => (
               <FormItem>
-                <FormLabel htmlFor={field.name} className='font-bold'>País</FormLabel>
+                <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>País</FormLabel>
 
                 <FormControl>
                   <Select
@@ -115,8 +115,8 @@ export default function AddAddress({ submit }) {
                     defaultValue={field.value}
                     disabled
                   >
-                    <SelectTrigger className='w-full'>
-                      <SelectValue placeholder='Seleccione un país' />
+                    <SelectTrigger className='w-full max-w-full overflow-hidden'>
+                      <SelectValue placeholder='Seleccione un país' className='inline-block max-w-full'/>
                     </SelectTrigger>
 
                     <SelectContent>
@@ -136,10 +136,10 @@ export default function AddAddress({ submit }) {
           name='address'
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={field.name} className='font-bold'>Dirección</FormLabel>
+              <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Dirección</FormLabel>
                 
               <FormControl>
-                <Input id={field.name} placeholder='Calle 624' type='text' {...field} disabled={isSubmitting} />
+                <Input id={field.name} placeholder='Calle y numero' type='text' {...field} disabled={isSubmitting} />
               </FormControl>
                 
               <FormMessage />
@@ -153,15 +153,15 @@ export default function AddAddress({ submit }) {
             name='region'
             render={({ field }) => (
               <FormItem>
-                <FormLabel htmlFor={field.name} className='font-bold'>Provincia / Estado</FormLabel>
+                <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Provincia / Estado</FormLabel>
                   
                 <FormControl>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
-                    <SelectTrigger className='w-full'>
-                      <SelectValue placeholder='Cordoba' />
+                    <SelectTrigger className='w-full max-w-full overflow-hidden'>
+                      <SelectValue placeholder='Selecciona una provincia' className='inline-block max-w-full'/>
                     </SelectTrigger>
 
                     <SelectContent>
@@ -182,10 +182,10 @@ export default function AddAddress({ submit }) {
             name='zip'
             render={({ field }) => (
               <FormItem>
-                <FormLabel htmlFor={field.name} className='font-bold'>Código Postal</FormLabel>
+                <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Código Postal</FormLabel>
                   
                 <FormControl>
-                  <Input id={field.name} placeholder='5800' type='text' {...field} disabled={isSubmitting} />
+                  <Input id={field.name} placeholder='XXXX' type='text' {...field} disabled={isSubmitting} />
                 </FormControl>
                   
                 <FormMessage />
@@ -201,7 +201,7 @@ export default function AddAddress({ submit }) {
             name='city'
             render={({ field }) => (
               <FormItem>
-                <FormLabel htmlFor={field.name} className='font-bold'>Ciudad</FormLabel>
+                <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Ciudad</FormLabel>
                   
                 <FormControl>
                   <Input id={field.name} placeholder='Rio Cuarto' type='text' {...field} disabled={isSubmitting} />
@@ -217,7 +217,7 @@ export default function AddAddress({ submit }) {
             name='dpto'
             render={({ field }) => (
               <FormItem>
-                <FormLabel htmlFor={field.name} className='font-bold'>Departamento</FormLabel>
+                <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Departamento</FormLabel>
                   
                 <FormControl>
                   <Input id={field.name} placeholder='5C' type='text' {...field} disabled={isSubmitting} />
@@ -234,7 +234,7 @@ export default function AddAddress({ submit }) {
           name='note'
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={field.name} className='font-bold'>Nota</FormLabel>
+              <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Nota</FormLabel>
                 
               <FormControl>
                 <Textarea className='max-h-28 h-[4em] field-sizing-content' id={field.name} placeholder='Nota de recordatorio' type='text' {...field} disabled={isSubmitting} />

@@ -379,7 +379,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                     name='name'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel htmlFor={field.name} className='font-bold'>
+                        <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>
                           {
                             type === 'INDIVIDUAL' ? 'Nombre' : 'Nombre de fantasía'
                           }
@@ -411,7 +411,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                     name='lastName'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel htmlFor={field.name} className='font-bold'>
+                        <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>
                           {
                             type === 'INDIVIDUAL' ? 'Apellido' : 'Nombre de la empresa'
                           }
@@ -466,7 +466,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                       name='DNI'
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel htmlFor={field.name} className='font-bold'>DNI</FormLabel>
+                          <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>DNI</FormLabel>
                             
                           <FormControl>
                             <Input
@@ -496,7 +496,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                       name='CUIT'
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel htmlFor={field.name} className='font-bold'>CUIT</FormLabel>
+                          <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>CUIT</FormLabel>
 
                           <FormControl>
                             <Input
@@ -525,7 +525,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                     name='note'
                     render={({ field }) => (
                       <FormItem className='flex flex-col w-full h-[100px]'>
-                        <FormLabel htmlFor={field.name} className='font-bold'>Nota</FormLabel>
+                        <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Nota</FormLabel>
                           
                         <FormControl>
                           <Textarea
@@ -598,9 +598,9 @@ export default function ClientForm({ defaultValues, editMode = false }) {
 
             <DialogContent className='sm:max-w-[425px]'>
               <DialogHeader>
-                <DialogTitle>Agregar Contacto</DialogTitle>
+                <DialogTitle>{defaultContactForm?.id ? 'Editar Contacto' : 'Agregar Contacto'}</DialogTitle>
                 <DialogDescription>
-                  Puedes agregar multiples contactos para el cliente y elegir uno como principal.
+                  Con los switches puedes seleccionar el método principal de este contacto.
                 </DialogDescription>
               </DialogHeader>
 
@@ -712,9 +712,9 @@ export default function ClientForm({ defaultValues, editMode = false }) {
             <DialogContent className='sm:max-w-[425px]'>
               <DialogHeader>
                 <DialogTitle>Agregar Dirección</DialogTitle>
-                <DialogDescription>
+                {/* <DialogDescription>
                     Puedes rellenar primero el campo "Dirección" para obtener un autocompletado con google.
-                </DialogDescription>
+                </DialogDescription> */}
               </DialogHeader>
 
               <AddAddress submit={addAddress} />
