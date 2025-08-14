@@ -48,8 +48,10 @@ import LoadScreenBlur from '@/components/MyComponents/LoadScreenBlur'
 import { toast } from 'sonner'
 import SimpleToast from '@/components/MyComponents/SimpleToast'
 import { useNavigate } from 'react-router-dom'
+import { buildClient, modifyClientData } from './ContactForm/BuildObjForSend'
 
 export default function ClientForm({ defaultValues, editMode = false }) {
+  console.log(defaultValues)
 
   // Local State
   const [type, setType] = useState(defaultValues?.type || 'INDIVIDUAL')
@@ -67,18 +69,25 @@ export default function ClientForm({ defaultValues, editMode = false }) {
     process: '',
     state: false
   })
+  const [deletedAddresses, setDeletedAddresses] = useState([])
+  const [deletedContacts, setDeletedContacts] = useState([])
+  const [deletedContactMethods, setDeletedContactMethods] = useState([])
 
   // Hooks
   const navigate = useNavigate()
   const {
+    commitClientMutation,
     createClientMutation,
-    // modifyClientMutation,
-    // createAddressMutation,
-    // modifyAddressMutation,
-    // deleteAddressMutation,
-    // createContactMutation,
-    // modifyContactMutation,
-    // deleteContactMutation
+    modifyClientMutation,
+    createAddressMutation,
+    modifyAddressMutation,
+    deleteAddressMutation,
+    createContactMutation,
+    modifyContactMutation,
+    createContactMethodMutation,
+    modifyContactMethodMutation,
+    deleteContactMethodMutation,
+    deleteContactMutation
   } = useClientQueries()
   const form = useForm({
     resolver: (() => zodResolver(clientSchema(type)))(),
@@ -86,70 +95,119 @@ export default function ClientForm({ defaultValues, editMode = false }) {
   })
 
   const { formState: { isSubmitting } } = form
+  // Envío de cambios uno por uno y commit
+  const handleEditSubmit = async (difObj) => {
+    const {
+      clientDif,
+      contactsDif,
+      addressDif,
+      deletedAddresses = [],
+      deletedContacts = [],
+      deletedContactMethods = []
+    } = difObj
+    const clientId = defaultValues.id
+
+    // 0. Eliminar direcciones
+    if (Array.isArray(deletedAddresses)) {
+      for (const addressId of deletedAddresses) {
+        await deleteAddressMutation.mutateAsync({ clientId, addressId })
+      }
+    }
+
+    // 0. Eliminar métodos de contacto
+    // if (Array.isArray(deletedContactMethods)) {
+    //   for (const { contactId, methodId } of deletedContactMethods) {
+    //     await deleteContactMethodMutation.mutateAsync({ clientId, contactId, methodId })
+    //   }
+    // }
+
+    // 0. Eliminar contactos
+    if (Array.isArray(deletedContacts)) {
+      for (const contactId of deletedContacts) {
+        await deleteContactMutation.mutateAsync({ clientId, contactId })
+      }
+    }
+
+    // 1. Modificar datos del cliente si hay cambios
+    if (clientDif && Object.keys(clientDif).length > 1) {
+      await modifyClientMutation.mutateAsync({ clientId, data: clientDif })
+    }
+    // 2. Modificar direcciones
+    if (Array.isArray(addressDif)) {
+      for (const addr of addressDif) {
+        if (addr?.id && Object.keys(addr).length > 1) {
+          addr.address_id = addr.id
+          delete addr.id
+          await modifyAddressMutation.mutateAsync({ clientId, addressId: addr.address_id, data: addr })
+        } else {
+          await createAddressMutation.mutateAsync({ clientId, data: addr })
+        }
+      }
+    }
+    // 3. Modificar contactos y métodos
+    if (Array.isArray(contactsDif)) {
+      for (const contact of contactsDif) {
+        if (contact?.id && Object.keys(contact).length > 1) {
+          // Contact update
+          const { contact_methods, ...contactData } = contact
+          contactData.contact_id = contact.id
+          delete contactData.id
+          await modifyContactMutation.mutateAsync({ clientId, contactId: contact.id, data: contactData })
+          // Métodos de contacto
+          if (Array.isArray(contact_methods)) {
+            for (const method of contact_methods) {
+              if (method?.id && Object.keys(method).length > 1) {
+                method.contact_method_id = method.id
+                delete method.id
+                await modifyContactMethodMutation.mutateAsync({ clientId, contactId: contact.id, methodId: method.contact_method_id, data: method })
+              } else {
+                await createContactMethodMutation.mutateAsync({ clientId, contactId: contact.id, data: method })
+              }
+            }
+          }
+        } else {
+          contact &&
+          await createContactMutation.mutateAsync({ clientId, data: contact })
+        }
+      }
+    }
+    // 4. Commit
+    await commitClientMutation.mutateAsync(clientId)
+  }
 
   // Methods
   const onSubmit = async (data) => {
 
     if (!validate()) return
 
-    const isPerson = !!data.DNI
+    const parsedClient = buildClient(data, addresses, contacts, primaryContact, shippingAddress, billingAddress)
 
     if (editMode) {
-      console.log('Editando cliente...')
+      // setLoading({
+      //   title: 'Editando cliente...',
+      //   process: 'Preparando Información.',
+      //   state: true
+      // })
+
+      // Get differences
+      const modifyObj = modifyClientData(defaultValues, parsedClient)
+      console.log('modifyObj:', modifyObj)
+      handleEditSubmit({
+        ...modifyObj,
+        deletedAddresses,
+        deletedContacts,
+        deletedContactMethods
+      })
+
+
     } else {
       setLoading({
         title: 'Creando cliente...',
         process: '',
         state: true
       })
-      
-      const body = {
-        customer_type: isPerson ? 'INDIVIDUAL' : 'BUSINESS',
-        internal_notes: { metadata: data.note || '' },
-        identification_type: isPerson ? 'AR_DNI' : 'AR_CUIT',
-        identification_number: data.DNI || data.CUIT,
-        customer_details: {
-          company_name: !isPerson ? data.lastName : '',
-          fantasy_name: !isPerson ? data.name : '',
-          first_name: isPerson ? data.name : '',
-          // second_name: 'Carlos',
-          first_surname: isPerson ? data.lastName : '',
-          // second_surname: 'Gómez',
-          // birth_date: '1980-01-01'
-        },
-        address: addresses.map(address => {
-          return {
-            address_type: address.place,
-            street: address.address,
-            city: address.city,
-            state_province: address.region,
-            zip_code: address.zip,
-            country_code: address.country,
-            additional_info: address.depto || '',
-            is_primary: address.id === shippingAddress,
-            internal_notes: { metadata: address.note || '' },
-          }
-        }),
-        customer_contacts: contacts.map(contact => {
-          return {
-            contact_type: contact.type,
-            first_name: contact.firstName,
-            last_name: contact.lastName,
-            role: contact.role,
-            is_primary: contact.id === primaryContact,
-            internal_notes: contact.internalNotes,
-            contact_methods: contact.contactMethods.map(cm => {
-              return {
-                type: cm.type,
-                value: cm.value,
-                is_primary: cm.primary,
-              }
-            })
-          }
-        })
-      }
 
-      const res = await createClientMutation.mutateAsync(body)
+      const res = await createClientMutation.mutateAsync(parsedClient)
 
       if (!res) {
         toast(<SimpleToast message='Ups! Ocurrio un error...' state='error' />)
@@ -164,16 +222,6 @@ export default function ClientForm({ defaultValues, editMode = false }) {
       process: '',
       state: false
     })
-
-    //! borrar luego
-    // console.log({
-    //   ...data,
-    //   addresses,
-    //   contacts,
-    //   primaryContact,
-    //   shippingAddress,
-    //   billingAddress
-    // })
 
   }
 
@@ -247,6 +295,34 @@ export default function ClientForm({ defaultValues, editMode = false }) {
     
     }
 
+  }
+
+  const handleDeleteAddress = (addressId) => {
+    setAddresses(addresses.filter(a => a.id !== addressId))
+    // Solo registrar si el id existe en defaultValues.addresses
+    if (defaultValues.addresses?.some(a => a.id === addressId)) {
+      setDeletedAddresses([...deletedAddresses, addressId])
+    }
+    if (shippingAddress === addressId) setShippingAddress(null)
+    if (billingAddress === addressId) setBillingAddress(null)
+  }
+
+  const handleDeleteContact = (contactId) => {
+    // Buscar el contacto original para obtener sus métodos
+    const originalContact = defaultValues.contacts?.find(c => c.id === contactId)
+    if (originalContact && Array.isArray(originalContact.contactMethods)) {
+      // Agregar todos los métodos de ese contacto a los eliminados
+      setDeletedContactMethods([
+        ...deletedContactMethods,
+        ...originalContact.contactMethods.map(m => ({ contactId, methodId: m.id }))
+      ])
+    }
+    setContacts(contacts.filter(c => c.id !== contactId))
+    // Solo registrar si el id existe en defaultValues.contacts
+    if (originalContact) {
+      setDeletedContacts([...deletedContacts, contactId])
+    }
+    if (primaryContact === contactId) setPrimaryContact(null)
   }
 
   return (
@@ -504,7 +580,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                     </button>
                     <button
                       type='button'
-                      onClick={() => setContacts([...contacts.filter((c) => c.id !== contact.id)])}
+                      onClick={() => handleDeleteContact(contact.id)}
                       className='text-red-600 hover:cursor-pointer ml-auto opacity-70 hover:opacity-100 transition-opacity duration-200'
                     >
                       <X className='w-5 h-5' />
@@ -611,7 +687,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                     </button>
                     <button
                       type='button'
-                      onClick={() => setAddresses([...addresses.filter((a) => a.id !== address.id)])}
+                      onClick={() => handleDeleteAddress(address.id)}
                       className='text-red-600 hover:cursor-pointer ml-auto opacity-70 hover:opacity-100 transition-opacity duration-200'
                     >
                       <X className='w-5 h-5' />

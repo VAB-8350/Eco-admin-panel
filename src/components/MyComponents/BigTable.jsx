@@ -85,24 +85,24 @@ export default function BigTable({
           className={`${className} w-full overflow-auto relative`}
         >
 
+          <span className='absolute inset-0 w-full h-[40px] rounded-md rounded-tr-md rounded-tl-md bg-[var(--border)] backdrop-blur-xl' />
           <table className='w-full h-full border-collapse'>
 
             {/* head */}
             <thead className='sticky top-0 z-10'>
-              <span className='absolute inset-0 w-full h-full rounded-md rounded-tr-md rounded-tl-md bg-[var(--border)] backdrop-blur-xl' />
               {
                 table.getHeaderGroups().map(group => (
                   // header row
                   <tr key={group.id}>
 
                     {
-                      group.headers.map(header => (
+                      group.headers.map((header, i) => (
                         // header cell
                         <th
                           className={`
                             text-left text-sm h-full relative p-2
                             ${header.column.columnDef.enableSorting !== false ? 'sortable' : ''}
-
+                            ${i === 0 ? 'pl-4' : ''}
                           `}
                           key={header.id}
                           onClick={header.column.getToggleSortingHandler()}
@@ -112,7 +112,7 @@ export default function BigTable({
                             width: (header.column.columnDef.size !== 50 ? header.column.columnDef.size : 'auto')
                           }}
                         >
-                          <span className='inline-block w-full whitespace-nowrap overflow-hidden text-ellipsis'>
+                          <span className='inline-block w-full whitespace-nowrap overflow-hidden text-ellipsis mt-[2px]'>
                             {/* sort icons */}
                             {
                               header.column.columnDef.enableSorting !== false &&
@@ -149,10 +149,10 @@ export default function BigTable({
                     `}
                   >
                     {
-                      row.getVisibleCells().map(cell => (
+                      row.getVisibleCells().map((cell, i) => (
                         // body cell
                         <td
-                          className='text-left text-sm h-full relative p-3'
+                          className={`text-left text-sm h-full relative px-2 py-3 ${i === 0 ? 'pl-4' : ''}`}
                           key={cell.id}
                           style={{
                             maxWidth: (cell.column.columnDef.size !== 150 ? cell.column.columnDef.size : 'auto')

@@ -3,7 +3,7 @@ import ClientForm from '@/components/MyComponents/ClientForm/ClientForm'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Dialog } from '@/components/ui/dialog'
 import useAxiosPrivate from '@/hooks/useAxiosPrivate'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Save, X } from 'lucide-react'
@@ -14,11 +14,25 @@ export default function EditClients() {
 
   //Hooks
   const axiosPrivate = useAxiosPrivate()
-  const { data, isLoading, isRefetching, isError } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['customer', id],
     queryFn: async () => {
       const { data } = await axiosPrivate.get(`/customers/${id}`)
       return data
+    },
+    cacheTime: 0, // evita cachear la respuesta
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
+  })
+
+  const discardClientMutation = useMutation({
+    mutationFn: async (clientId) => {
+      try {
+        return await axiosPrivate.post(`/customers/${clientId}/session/discard`)
+      } catch {
+        return false
+      }
     },
   })
 
@@ -56,6 +70,7 @@ export default function EditClients() {
           primary: contact.isPrimary,
           note: contact.internalNotes.metadata,
           contactMethods: contact.contactMethods.map(method => ({
+            id: method.uuid,
             type: method.type,
             value: method.value,
             primary: method.isPrimary
@@ -68,9 +83,14 @@ export default function EditClients() {
     }
   }, [data])
 
-  const goBack = () => {
+  const goBack = async () => {
     const res = confirm('¿Estás seguro que deseas salir? Se perderán los cambios no guardados.')
-    res && window.history.back()
+    if (res) {
+      document.body.style.cursor = 'wait'
+      await discardClientMutation.mutateAsync(id)
+      document.body.style.cursor = 'default'
+      window.history.back()
+    }
   }
 
   return (
