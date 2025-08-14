@@ -7,6 +7,17 @@ export default function useClientQueries() {
   const axiosPrivate = useAxiosPrivate()
 
   // Hooks Mutations
+  //* Actions
+  const commitClientMutation = useMutation({
+    mutationFn: async (clientId) => {
+      try {
+        return await axiosPrivate.post(`/customers/${clientId}/session/commit`)
+      } catch {
+        return false
+      }
+    },
+  })
+
   //* Client
   const createClientMutation = useMutation({
     mutationFn: async (data) => {
@@ -19,7 +30,7 @@ export default function useClientQueries() {
   })
 
   const modifyClientMutation = useMutation({
-    mutationFn: async (clientId, data) => {
+    mutationFn: async ({ clientId, data }) => {
       try {
         return await axiosPrivate.patch(`/customers/${clientId}`, data)
       } catch {
@@ -30,7 +41,7 @@ export default function useClientQueries() {
 
   //* Address
   const createAddressMutation = useMutation({
-    mutationFn: async (clientId, data) => {
+    mutationFn: async ({ clientId, data }) => {
       try {
         return await axiosPrivate.post(`/customers/${clientId}/addresses`, data)
       } catch {
@@ -40,7 +51,7 @@ export default function useClientQueries() {
   })
 
   const modifyAddressMutation = useMutation({
-    mutationFn: async (clientId, addressId, data) => {
+    mutationFn: async ({ clientId, addressId, data }) => {
       try {
         return await axiosPrivate.patch(`/customers/${clientId}/addresses/${addressId}`, data)
       } catch {
@@ -50,7 +61,7 @@ export default function useClientQueries() {
   })
 
   const deleteAddressMutation = useMutation({
-    mutationFn: async (clientId, addressId) => {
+    mutationFn: async ({ clientId, addressId }) => {
       try {
         return await axiosPrivate.delete(`/customers/${clientId}/addresses/${addressId}`)
       } catch {
@@ -61,7 +72,7 @@ export default function useClientQueries() {
 
   //* Contact
   const createContactMutation = useMutation({
-    mutationFn: async (clientId, data) => {
+    mutationFn: async ({ clientId, data }) => {
       try {
         return await axiosPrivate.post(`/customers/${clientId}/contacts`, data)
       } catch {
@@ -71,7 +82,7 @@ export default function useClientQueries() {
   })
 
   const modifyContactMutation = useMutation({
-    mutationFn: async (clientId, contactId, data) => {
+    mutationFn: async ({ clientId, contactId, data }) => {
       try {
         return await axiosPrivate.patch(`/customers/${clientId}/contacts/${contactId}`, data)
       } catch {
@@ -81,7 +92,7 @@ export default function useClientQueries() {
   })
 
   const deleteContactMutation = useMutation({
-    mutationFn: async (clientId, contactId) => {
+    mutationFn: async ({ clientId, contactId }) => {
       try {
         return await axiosPrivate.delete(`/customers/${clientId}/contacts/${contactId}`)
       } catch {
@@ -90,7 +101,39 @@ export default function useClientQueries() {
     },
   })
 
+  //* Contact Methods
+  const createContactMethodMutation = useMutation({
+    mutationFn: async ({ clientId, contactId, data }) => {
+      try {
+        return await axiosPrivate.post(`/customers/${clientId}/contacts/${contactId}/methods`, data)
+      } catch {
+        return false
+      }
+    },
+  })
+
+  const modifyContactMethodMutation = useMutation({
+    mutationFn: async ({ clientId, contactId, methodId, data }) => {
+      try {
+        return await axiosPrivate.patch(`/customers/${clientId}/contacts/${contactId}/methods/${methodId}`, data)
+      } catch {
+        return false
+      }
+    },
+  })
+
+  const deleteContactMethodMutation = useMutation({
+    mutationFn: async ({ clientId, contactId, methodId }) => {
+      try {
+        return await axiosPrivate.delete(`/customers/${clientId}/contacts/${contactId}/methods/${methodId}`)
+      } catch {
+        return false
+      }
+    },
+  })
+
   return {
+    commitClientMutation,
     createClientMutation,
     modifyClientMutation,
     createAddressMutation,
@@ -99,5 +142,8 @@ export default function useClientQueries() {
     createContactMutation,
     modifyContactMutation,
     deleteContactMutation,
+    createContactMethodMutation,
+    modifyContactMethodMutation,
+    deleteContactMethodMutation,
   }
 }
