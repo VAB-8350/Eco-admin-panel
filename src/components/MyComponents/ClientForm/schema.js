@@ -10,12 +10,12 @@ export function clientSchema (clientType) {
   switch (clientType) {
     case 'INDIVIDUAL':
       return baseSchema.extend({
-        DNI: z.string().min(8, 'Este campo es requerido.')
+        DNI: z.string().min(8, 'DNI invalido').max(8, 'DNI invalido')
       })
 
     case 'BUSINESS':
       return baseSchema.extend({
-        CUIT: z.string().min(11, 'Este campo es requerido.')
+        CUIT: z.string().min(11, 'CUIT invalido').max(11, 'CUIT invalido')
       })
 
     default:
