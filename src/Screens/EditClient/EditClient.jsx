@@ -124,7 +124,7 @@ export default function EditClients() {
             !isLoading && isError && <p>Error al cargar los datos del cliente</p>
           }
           {
-            isLoading || isFetching &&
+            (isLoading || isFetching) &&
             <div className='grid grid-cols-12 h-full gap-9'>
               <span className='animate-pulse bg-muted h-[300px] rounded col-span-7' />
               <span className='animate-pulse bg-muted h-[300px] rounded col-span-5' />
