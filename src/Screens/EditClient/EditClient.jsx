@@ -3,7 +3,7 @@ import ClientForm from '@/components/MyComponents/ClientForm/ClientForm'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Dialog } from '@/components/ui/dialog'
 import useAxiosPrivate from '@/hooks/useAxiosPrivate'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Save, X } from 'lucide-react'
@@ -14,21 +14,37 @@ export default function EditClients() {
 
   //Hooks
   const axiosPrivate = useAxiosPrivate()
-  const { data, isLoading, isRefetching, isError } = useQuery({
+  const { data, isLoading, isError, isFetching } = useQuery({
     queryKey: ['customer', id],
     queryFn: async () => {
       const { data } = await axiosPrivate.get(`/customers/${id}`)
       return data
     },
+    cacheTime: 0,
+    staleTime: 0,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchInterval: false,
+    enabled: !!id,
+  })
+
+  const discardClientMutation = useMutation({
+    mutationFn: async (clientId) => {
+      try {
+        return await axiosPrivate.post(`/customers/${clientId}/session/discard`)
+      } catch {
+        return false
+      }
+    },
   })
 
   // Local State
   const [open, setOpen] = useState()
-  const [defaultVal, setDefaultVal] = useState({})
-  const [mounted, setMounted] = useState(false)
+  const [defaultVal, setDefaultVal] = useState(null)
 
   useEffect(() => {
-    if (data) {
+
+    if (data && !isLoading && !isFetching) {
       // parsed data
       const body = {
         id: data.id,
@@ -54,8 +70,9 @@ export default function EditClients() {
           role: contact.role,
           type: contact.type,
           primary: contact.isPrimary,
-          note: contact.internalNotes.metadata,
+          internalNotes: contact.internalNotes,
           contactMethods: contact.contactMethods.map(method => ({
+            id: method.uuid,
             type: method.type,
             value: method.value,
             primary: method.isPrimary
@@ -64,13 +81,18 @@ export default function EditClients() {
       }
 
       setDefaultVal(body)
-      setMounted(true)
     }
-  }, [data])
 
-  const goBack = () => {
+  }, [data, isLoading, isFetching])
+
+  const goBack = async () => {
     const res = confirm('¿Estás seguro que deseas salir? Se perderán los cambios no guardados.')
-    res && window.history.back()
+    if (res) {
+      document.body.style.cursor = 'wait'
+      await discardClientMutation.mutateAsync(id)
+      document.body.style.cursor = 'default'
+      window.history.back()
+    }
   }
 
   return (
@@ -95,14 +117,14 @@ export default function EditClients() {
 
         <ScrollArea className='flex flex-col w-full mx-auto overflow-hidden h-[90%]'>
           {
-            mounted && !isError &&
+            (defaultVal && !isError && !isLoading && !isFetching) &&
             <ClientForm setOpen={setOpen} defaultValues={defaultVal} editMode />
           }
           {
             !isLoading && isError && <p>Error al cargar los datos del cliente</p>
           }
           {
-            isLoading &&
+            isLoading || isFetching &&
             <div className='grid grid-cols-12 h-full gap-9'>
               <span className='animate-pulse bg-muted h-[300px] rounded col-span-7' />
               <span className='animate-pulse bg-muted h-[300px] rounded col-span-5' />

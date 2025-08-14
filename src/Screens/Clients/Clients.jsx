@@ -9,10 +9,12 @@ import { Badge } from '@/components/ui/badge'
 import useAxiosPrivate from '@/hooks/useAxiosPrivate'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import ErrorMessage from '@/components/MyComponents/ErrorMessage'
+import { useNavigate } from 'react-router-dom'
 
 export default function Clients() {
 
   //Hooks
+  const navigate = useNavigate()
   const axiosPrivate = useAxiosPrivate()
   const { data, isLoading, isRefetching, isError, refetch, error } = useQuery({
     queryKey: ['customers'],
@@ -21,6 +23,7 @@ export default function Clients() {
       return data
     },
   })
+
   const deleteClientMutation = useMutation({
     mutationFn: async (id) => {
       const { data } = await axiosPrivate.delete(`/customers/${id}`)
@@ -35,9 +38,31 @@ export default function Clients() {
     }
   })
 
+  const EditClient = useMutation({
+    mutationFn: async (id) => {
+      try {
+        return  await axiosPrivate.post(`/customers/${id}/session/lock`)
+      } catch {
+        return false
+      }
+    },
+  })
+
   const handleDelete = (id) => {
     const confirm = window.confirm('¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.')
     if (confirm) deleteClientMutation.mutate(id)
+  }
+
+  const handleEdit = async (id) => {
+    document.body.style.cursor = 'wait'
+    const res = await EditClient.mutateAsync(id)
+    document.body.style.cursor = 'default'
+
+    if (res) {
+      navigate(`/edit-client/${id}`)
+    } else {
+      toast(<SimpleToast message='Error al obtener el cliente' state='error' />)
+    }
   }
 
   const columns = [
@@ -73,7 +98,6 @@ export default function Clients() {
       cell: ({ row: { original } }) => {
         const primaryContact = original.contacts.find(c => c.isPrimary)
         const contactMethod = primaryContact?.contactMethods.find(cm => cm.isPrimary) ?? primaryContact?.contactMethods[0]
-        console.log()
 
         const handleCopy = () => {
           if (contactMethod) {
@@ -145,15 +169,15 @@ export default function Clients() {
 
         return (
           <div className='flex items-center gap-2 justify-end'>
-            <Link className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' to={`/edit-client/${original.id}`}>
+            <button className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' onClick={() => handleEdit(original.id)}>
               <Pencil className='w-4 h-4' />
-            </Link>
+            </button>
 
             <button onClick={handleCopy} title='Copiar todos los datos del cliente' className='hover:text-green-500 duration-300 outline-none hover:cursor-pointer p-1'>
               <Copy className='w-4 h-4' />
             </button>
 
-            <button onClick={() => handleDelete(original.id)} title='Eliminar cliente' className='hover:text-red-500 duration-300 outline-none hover:cursor-pointer p-1'>
+            <button onClick={() => handleDelete(original.id)} title='Eliminar cliente' className='text-red-500/50 hover:text-red-500 duration-300 outline-none hover:cursor-pointer p-1'>
               <Trash className='w-4 h-4' />
             </button>
           </div>
@@ -178,7 +202,7 @@ export default function Clients() {
       <section className='flex flex-col w-full mx-auto overflow-hidden h-[90%]'>
         <div className='flex justify-center mb-4 lg:mb-6'>
           <div className='w-1/2 max-w-[400px] relative flex items-center'>
-            <Input type='text' placeHolder='Buscar' className='w-full' />
+            <Input type='text' placeholder='Buscar' className='w-full' />
             <Search className='absolute right-3 w-4 h-4 stroke-[var(--primary)]/50' />
           </div>
         </div>

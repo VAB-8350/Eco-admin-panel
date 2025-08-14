@@ -48,6 +48,7 @@ import LoadScreenBlur from '@/components/MyComponents/LoadScreenBlur'
 import { toast } from 'sonner'
 import SimpleToast from '@/components/MyComponents/SimpleToast'
 import { useNavigate } from 'react-router-dom'
+import { buildClient, parseClient, parseAddress, parseContact } from './ContactForm/BuildObjForSend'
 
 export default function ClientForm({ defaultValues, editMode = false }) {
 
@@ -67,18 +68,23 @@ export default function ClientForm({ defaultValues, editMode = false }) {
     process: '',
     state: false
   })
+  const [pendingChanges, setPendingChanges] = useState([])
 
   // Hooks
   const navigate = useNavigate()
   const {
+    commitClientMutation,
     createClientMutation,
-    // modifyClientMutation,
-    // createAddressMutation,
-    // modifyAddressMutation,
-    // deleteAddressMutation,
-    // createContactMutation,
-    // modifyContactMutation,
-    // deleteContactMutation
+    modifyClientMutation,
+    createAddressMutation,
+    modifyAddressMutation,
+    deleteAddressMutation,
+    createContactMutation,
+    modifyContactMutation,
+    createContactMethodMutation,
+    modifyContactMethodMutation,
+    deleteContactMethodMutation,
+    deleteContactMutation
   } = useClientQueries()
   const form = useForm({
     resolver: (() => zodResolver(clientSchema(type)))(),
@@ -92,62 +98,17 @@ export default function ClientForm({ defaultValues, editMode = false }) {
 
     if (!validate()) return
 
-    const isPerson = !!data.DNI
-
     if (editMode) {
-      console.log('Editando cliente...')
+      setLoading({ title: 'Actualizando cliente...', process: '', state: true })
+      sendPendingChanges(defaultValues?.id)
     } else {
       setLoading({
         title: 'Creando cliente...',
         process: '',
         state: true
       })
-      
-      const body = {
-        customer_type: isPerson ? 'INDIVIDUAL' : 'BUSINESS',
-        internal_notes: { metadata: data.note || '' },
-        identification_type: isPerson ? 'AR_DNI' : 'AR_CUIT',
-        identification_number: data.DNI || data.CUIT,
-        customer_details: {
-          company_name: !isPerson ? data.lastName : '',
-          fantasy_name: !isPerson ? data.name : '',
-          first_name: isPerson ? data.name : '',
-          // second_name: 'Carlos',
-          first_surname: isPerson ? data.lastName : '',
-          // second_surname: 'Gómez',
-          // birth_date: '1980-01-01'
-        },
-        address: addresses.map(address => {
-          return {
-            address_type: address.place,
-            street: address.address,
-            city: address.city,
-            state_province: address.region,
-            zip_code: address.zip,
-            country_code: address.country,
-            additional_info: address.depto || '',
-            is_primary: address.id === shippingAddress,
-            internal_notes: { metadata: address.note || '' },
-          }
-        }),
-        customer_contacts: contacts.map(contact => {
-          return {
-            contact_type: contact.type,
-            first_name: contact.firstName,
-            last_name: contact.lastName,
-            role: contact.role,
-            is_primary: contact.id === primaryContact,
-            internal_notes: contact.internalNotes,
-            contact_methods: contact.contactMethods.map(cm => {
-              return {
-                type: cm.type,
-                value: cm.value,
-                is_primary: cm.primary,
-              }
-            })
-          }
-        })
-      }
+
+      const body = buildClient(data, addresses, contacts, primaryContact, shippingAddress, billingAddress)
 
       const res = await createClientMutation.mutateAsync(body)
 
@@ -165,16 +126,68 @@ export default function ClientForm({ defaultValues, editMode = false }) {
       state: false
     })
 
-    //! borrar luego
-    // console.log({
-    //   ...data,
-    //   addresses,
-    //   contacts,
-    //   primaryContact,
-    //   shippingAddress,
-    //   billingAddress
-    // })
+  }
 
+  const sendPendingChanges = async (clientId) => {
+    for (const change of pendingChanges) {
+      switch (change.type) {
+        case 'deleteAddress':
+          setLoading({ title: 'Actualizando cliente...', process: 'Eliminando dirección...', state: true })
+          await deleteAddressMutation.mutateAsync({ clientId, addressId: change.id })
+          break
+
+        case 'deleteContact':
+          setLoading({ title: 'Actualizando cliente...', process: 'Eliminando contacto...', state: true })
+          await deleteContactMutation.mutateAsync({ clientId, contactId: change.id })
+          break
+
+        case 'modifyClient': {
+          setLoading({ title: 'Actualizando cliente...', process: 'Modificando cliente...', state: true })
+          const body = { ...parseClient(change.data), customer_id: clientId }
+          await modifyClientMutation.mutateAsync({ clientId, data: body })
+          break
+        }
+
+        case 'createAddress': {
+          setLoading({ title: 'Actualizando cliente...', process: 'Creando dirección...', state: true })
+          const body = parseAddress(change.data, shippingAddress, billingAddress)
+          await createAddressMutation.mutateAsync({ clientId, data: body })
+          break
+        }
+
+        case 'createContact': {
+          setLoading({ title: 'Actualizando cliente...', process: 'Creando contacto...', state: true })
+          const body = parseContact(change.data, primaryContact)
+          await createContactMutation.mutateAsync({ clientId, data: body })
+          break
+        }
+
+        case 'modifyContact': {
+          setLoading({ title: 'Actualizando cliente...', process: 'Modificando contacto...', state: true })
+          const body = { ...parseContact(change.data, primaryContact), contact_id: change.id }
+          const contactMethods = [...body.contact_methods]
+          delete body.contact_methods
+          await modifyContactMutation.mutateAsync({ clientId, contactId: change.id, data: body })
+
+          if (contactMethods.length > 0) {
+            for (const cm of contactMethods) {
+              cm.contact_method_id = cm.id
+              delete cm.id
+              setLoading({ title: 'Actualizando cliente...', process: 'Actualizando Métodos...', state: true })
+              await modifyContactMethodMutation.mutateAsync({ clientId, contactId: change.id, methodId: cm.contact_method_id, data: cm })
+            }
+          }
+          break
+        }
+        
+        // Agrega otros tipos si los necesitas
+        default:
+          break
+      }
+    }
+    setLoading({ title: 'Actualizando cliente...', process: 'Confirmando datos...', state: true })
+    await commitClientMutation.mutateAsync(clientId)
+    navigate('/clients')
   }
 
   const validate = () => {
@@ -215,19 +228,36 @@ export default function ClientForm({ defaultValues, editMode = false }) {
     return Object.keys(newErrors).length === 0
   }
 
+  const attachContactMethodIds = (contactData, defaultValues) => {
+    // Busca el contacto original por id
+    const originalContact = defaultValues.contacts.find(c => c.id === contactData.id)
+    if (!originalContact) return contactData
+
+    // Reconstruye los ids de los métodos
+    const newMethods = contactData.contactMethods.map(cm => {
+      const originalMethod = originalContact.contactMethods.find(om => om.type === cm.type)
+      return originalMethod ? { ...cm, id: originalMethod.id } : cm
+    })
+
+    return { ...contactData, contactMethods: newMethods }
+  }
+
   const addAddress = (data) => {
     // Generar un id único para la dirección
-    const newAddress = { ...data, id: crypto.randomUUID() }
+    const newAddress = { ...data, id: `front-id-${crypto.randomUUID()}` }
     setAddresses([...addresses, newAddress])
     if (shippingAddress === null) setShippingAddress(newAddress.id)
     if (billingAddress === null) setBillingAddress(newAddress.id)
     setOpenDir(false)
+    // Si está en modo edición, registrar el cambio
+    if (editMode) {
+      upsertChange({ type: 'createAddress', id: newAddress.id, data: newAddress })
+    }
   }
 
   const addContact = (data) => {
 
     const isEdited = !!data.id
-    
     if (isEdited) {
       // Editar contacto existente
       const updatedContacts = contacts.map(contact => 
@@ -236,17 +266,95 @@ export default function ClientForm({ defaultValues, editMode = false }) {
       setContacts(updatedContacts)
       if (primaryContact === null) setPrimaryContact(data.id)
       setOpenContact(false)
-    }
-    
-    else {
+      // Si está en modo edición y el contacto existe en backend, registrar modificación
+      if (editMode && !data.id?.startsWith('front-id-')) {
+        const contactDataWithIds = attachContactMethodIds(data, defaultValues)
+        upsertChange({ type: 'modifyContact', id: data.id, data: contactDataWithIds })
+      }
+    } else {
       // Agregar nuevo contacto
-      const newContact = { ...data, id: crypto.randomUUID() }
+      const newContact = { ...data, id: `front-id-${crypto.randomUUID()}` }
       setContacts([...contacts, newContact])
       if (primaryContact === null) setPrimaryContact(newContact.id)
       setOpenContact(false)
-    
+      // Si está en modo edición, registrar el cambio
+      if (editMode) {
+        upsertChange({ type: 'createContact', id: newContact.id, data: newContact })
+      }
     }
 
+  }
+
+  const upsertChange = (change) => {
+    setPendingChanges(prev => {
+      const idx = prev.findIndex(
+        c => c.type === change.type && c.id === change.id
+      )
+      if (idx !== -1) {
+        // Actualiza el cambio existente
+        const updated = [...prev]
+        updated[idx] = { ...updated[idx], ...change }
+        return updated
+      }
+      // Agrega nuevo cambio
+      return [...prev, change]
+    })
+  }
+
+  // Handlers para borrar Address y Contact
+  const handleDeleteAddress = (address) => {
+    setAddresses(addresses.filter(a => a.id !== address.id))
+    // Si está en modo edición y la dirección ya existe en el backend
+    if (editMode && !address.id?.startsWith('front-id-')) {
+      upsertChange({ type: 'deleteAddress', id: address.id })
+    }
+    // Si la dirección borrada era la de envío/facturación, resetear selección
+    if (shippingAddress === address.id) setShippingAddress(null)
+    if (billingAddress === address.id) setBillingAddress(null)
+  }
+
+  const handleDeleteContact = (contact) => {
+    setContacts(contacts.filter(c => c.id !== contact.id))
+    // Si está en modo edición y el contacto ya existe en el backend
+    if (editMode && !contact.id?.startsWith('front-id-')) {
+      upsertChange({ type: 'deleteContact', id: contact.id })
+    }
+    // Si el contacto borrado era el principal, resetear selección
+    if (primaryContact === contact.id) setPrimaryContact(null)
+  }
+
+  // Registrar cambios del formulario principal en modo edición
+  const handleMainFormChange = (field, value) => {
+    if (!editMode) return
+    // Construir el objeto de datos modificado
+    const updated = { ...defaultValues, [field]: value }
+    upsertChange({ type: 'modifyClient', id: defaultValues?.id, data: updated })
+  }
+
+  const handleSetPrimaryContact = (newPrimaryId) => {
+    if (!editMode) {
+      setPrimaryContact(newPrimaryId)
+      return
+    }
+
+    const prevPrimaryId = primaryContact
+    setPrimaryContact(newPrimaryId)
+
+    // Cambiar el anterior a false, si existe
+    if (prevPrimaryId && prevPrimaryId !== newPrimaryId) {
+      upsertChange({
+        type: 'modifyContact',
+        id: prevPrimaryId,
+        data: { ...contacts.find(c => c.id === prevPrimaryId), primary: false }
+      })
+    }
+
+    // Cambiar el nuevo a true
+    upsertChange({
+      type: 'modifyContact',
+      id: newPrimaryId,
+      data: { ...contacts.find(c => c.id === newPrimaryId), primary: true }
+    })
   }
 
   return (
@@ -278,7 +386,17 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                         </FormLabel>
                           
                         <FormControl>
-                          <Input id={field.name} placeholder={type === 'INDIVIDUAL' ? 'Juan' : 'FarmaSur'} type='text' {...field} disabled={isSubmitting} />
+                          <Input
+                            id={field.name}
+                            placeholder={type === 'INDIVIDUAL' ? 'Juan' : 'FarmaSur'}
+                            type='text'
+                            {...field}
+                            disabled={isSubmitting}
+                            onChange={e => {
+                              field.onChange(e)
+                              handleMainFormChange('name', e.target.value)
+                            }}
+                          />
                         </FormControl>
                           
                         <FormMessage />
@@ -300,7 +418,17 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                         </FormLabel>
                           
                         <FormControl>
-                          <Input id={field.name} placeholder={type === 'INDIVIDUAL' ? 'Pérez' : 'Laboratorios Farmacéuticos del Sur S.A.'} type='text' {...field} disabled={isSubmitting} />
+                          <Input
+                            id={field.name}
+                            placeholder={type === 'INDIVIDUAL' ? 'Pérez' : 'Laboratorios Farmacéuticos del Sur S.A.'}
+                            type='text'
+                            {...field}
+                            disabled={isSubmitting}
+                            onChange={e => {
+                              field.onChange(e)
+                              handleMainFormChange('lastName', e.target.value)
+                            }}
+                          />
                         </FormControl>
                           
                         <FormMessage />
@@ -313,7 +441,10 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                   <FormLabel className='font-bold mb-2'>Tipo de cliente</FormLabel>
                       
                   <Select
-                    onValueChange={setType}
+                    onValueChange={value => {
+                      setType(value)
+                      handleMainFormChange('type', value)
+                    }}
                     defaultValue={type}
                   >
                     <SelectTrigger className='w-full'>
@@ -338,7 +469,17 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                           <FormLabel htmlFor={field.name} className='font-bold'>DNI</FormLabel>
                             
                           <FormControl>
-                            <Input id={field.name} placeholder='12345678' type='text' {...field} disabled={isSubmitting} />
+                            <Input
+                              id={field.name}
+                              placeholder='12345678'
+                              type='text'
+                              {...field}
+                              disabled={isSubmitting}
+                              onChange={e => {
+                                field.onChange(e)
+                                handleMainFormChange('DNI', e.target.value)
+                              }}
+                            />
                           </FormControl>
                             
                           <FormMessage />
@@ -358,7 +499,17 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                           <FormLabel htmlFor={field.name} className='font-bold'>CUIT</FormLabel>
 
                           <FormControl>
-                            <Input id={field.name} placeholder='20123456785' type='text' {...field} disabled={isSubmitting} />
+                            <Input
+                              id={field.name}
+                              placeholder='20123456785'
+                              type='text'
+                              {...field}
+                              disabled={isSubmitting}
+                              onChange={e => {
+                                field.onChange(e)
+                                handleMainFormChange('CUIT', e.target.value)
+                              }}
+                            />
                           </FormControl>
                             
                           <FormMessage />
@@ -377,7 +528,18 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                         <FormLabel htmlFor={field.name} className='font-bold'>Nota</FormLabel>
                           
                         <FormControl>
-                          <Textarea className='h-full resize-none' id={field.name} placeholder='Nota de recordatorio' type='text' {...field} disabled={isSubmitting} />
+                          <Textarea
+                            className='h-full resize-none'
+                            id={field.name}
+                            placeholder='Nota de recordatorio'
+                            type='text'
+                            {...field}
+                            disabled={isSubmitting}
+                            onChange={e => {
+                              field.onChange(e)
+                              handleMainFormChange('note', e.target.value)
+                            }}
+                          />
                         </FormControl>
                           
                         <FormMessage />
@@ -486,7 +648,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                     <button
                       type='button'
                       onClick={() => {
-                        setPrimaryContact(contact.id)
+                        handleSetPrimaryContact(contact.id)
                       }}
                       className='hover:text-yellow-500 hover:cursor-pointer ml-auto transition-colors duration-200'
                     >
@@ -504,7 +666,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                     </button>
                     <button
                       type='button'
-                      onClick={() => setContacts([...contacts.filter((c) => c.id !== contact.id)])}
+                      onClick={() => handleDeleteContact(contact)}
                       className='text-red-600 hover:cursor-pointer ml-auto opacity-70 hover:opacity-100 transition-opacity duration-200'
                     >
                       <X className='w-5 h-5' />
@@ -611,7 +773,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                     </button>
                     <button
                       type='button'
-                      onClick={() => setAddresses([...addresses.filter((a) => a.id !== address.id)])}
+                      onClick={() => handleDeleteAddress(address)}
                       className='text-red-600 hover:cursor-pointer ml-auto opacity-70 hover:opacity-100 transition-opacity duration-200'
                     >
                       <X className='w-5 h-5' />
