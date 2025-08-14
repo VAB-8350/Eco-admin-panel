@@ -121,7 +121,7 @@ export default function EditClients() {
             <ClientForm setOpen={setOpen} defaultValues={defaultVal} editMode />
           }
           {
-            !isLoading && isError && <p>Error al cargar los datos del cliente</p>
+            (!isLoading && isError) && <p>Error al cargar los datos del cliente</p>
           }
           {
             (isLoading || isFetching) &&
