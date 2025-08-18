@@ -70,7 +70,7 @@ export default function Clients() {
       header: 'Tipo',
       accessorKey: 'customerType',
       enableSorting: false,
-      size: 100,
+      size: 105,
       cell: ({ row: { original } }) => (
         original.customerType === 'INDIVIDUAL'
           ? <Badge variant='outline' className=''><UserRound className=' stroke-sky-500' /> Persona</Badge>
