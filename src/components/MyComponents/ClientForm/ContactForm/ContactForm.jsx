@@ -361,7 +361,7 @@ export default function ContactForm({ handleSubmit, defaultValues }) {
               name='note'
               render={({ field }) => (
                 <FormItem className='flex flex-col w-full h-full'>
-                  <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Nota</FormLabel>
+                  <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full min-h-3.5'>Nota</FormLabel>
                         
                   <FormControl>
                     <Textarea className='h-full resize-none' id={field.name} placeholder='Nota de recordatorio' type='text' {...field} disabled={isSubmitting} />

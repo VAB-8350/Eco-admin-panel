@@ -237,7 +237,7 @@ export default function AddAddress({ submit, defaultValues }) {
           name='note'
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Nota</FormLabel>
+              <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full min-h-3.5'>Nota</FormLabel>
                 
               <FormControl>
                 <Textarea className='max-h-28 h-[4em] field-sizing-content' id={field.name} placeholder='Nota de recordatorio' type='text' {...field} disabled={isSubmitting} />

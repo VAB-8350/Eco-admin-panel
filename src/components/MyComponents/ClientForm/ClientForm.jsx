@@ -601,7 +601,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                     name='note'
                     render={({ field }) => (
                       <FormItem className='flex flex-col w-full h-[100px]'>
-                        <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Nota</FormLabel>
+                        <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full min-h-3.5'>Nota</FormLabel>
                           
                         <FormControl>
                           <Textarea
