@@ -63,7 +63,7 @@ export default function EditClients() {
           country: address.countryCode,
           zip: address.zipCode,
           isPrimary: address.isPrimary,
-          dpto: address.additionalInfo,
+          dpto: address.additional_info,
           note: address.internalNotes.metadata,
         })),
         contacts: data.contacts.map(contact => ({
