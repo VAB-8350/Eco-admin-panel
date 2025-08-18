@@ -3,20 +3,11 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { Save, X } from 'lucide-react'
 import { useIsMobile } from '@/hooks/use-mobile'
-import LoadScreenBlur from '@/components/MyComponents/LoadScreenBlur'
-import { useState } from 'react'
 
 export default function AddClients() {
 
   // Hooks
   const isMobile = useIsMobile()
-
-  // Local state
-  const [loading, setLoading] = useState({
-    title: '',
-    process: '',
-    state: false
-  })
 
   const goBack = () => {
     const res = confirm('¿Estás seguro que deseas salir? Se perderán los cambios no guardados.')
@@ -37,19 +28,15 @@ export default function AddClients() {
               {!isMobile && 'Cancelar'}
             </button>
           </Button>
-          <Button type='submit' className='font-bold w-fit text-md hover:cursor-pointer' form='client-form' onClick={() => setLoading({ title: 'Cargando cliente...', process: 'Procesando datos.', state: true })}>
+          <Button type='submit' className='font-bold w-fit text-md hover:cursor-pointer' form='client-form'>
             <Save />
             {!isMobile ? 'Guardar cliente' : ''}
           </Button>
         </div>
       </header>
 
-      {
-        loading.state && <LoadScreenBlur title={loading.title} process={loading.process} />
-      }
-
       <ScrollArea className='flex flex-col w-full mx-auto overflow-hidden h-[90%]'>
-        <ClientForm setLoading={setLoading} />
+        <ClientForm />
 
         <span className='inline-block w-full h-10 bg-linear-to-b from-transparent to-[var(--background)] position absolute bottom-0' />
         <span className='inline-block h-10'/>

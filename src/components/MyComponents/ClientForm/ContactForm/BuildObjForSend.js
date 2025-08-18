@@ -1,20 +1,20 @@
 
 
-export function buildClient(data, addresses, contacts, primaryContact, shippingAddress, billingAddress) {
+export function buildClient(data, addresses, contacts, primaryContact, shippingAddress, billingAddress, type) {
   return {
-    ...parseClient(data),
+    ...parseClient(data, type),
     address: addresses.map(address => parseAddress(address, shippingAddress, billingAddress)),
     customer_contacts: contacts.map(contact => parseContact(contact, primaryContact)),
   }
 }
 
-export function parseClient(data) {
-  const isPerson = !!data.DNI
+export function parseClient(data, type) {
+  const isPerson = type === 'INDIVIDUAL'
   return {
     customer_type: isPerson ? 'INDIVIDUAL' : 'BUSINESS',
     internal_notes: { metadata: data.note || '' },
     identification_type: isPerson ? 'AR_DNI' : 'AR_CUIT',
-    identification_number: data.DNI || data.CUIT,
+    identification_number: isPerson ? data.DNI : data.CUIT,
     customer_details: parseClientDetails(data, isPerson),
   }
 }

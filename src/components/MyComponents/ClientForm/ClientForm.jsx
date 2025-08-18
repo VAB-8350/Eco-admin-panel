@@ -48,8 +48,9 @@ import { toast } from 'sonner'
 import SimpleToast from '@/components/MyComponents/SimpleToast'
 import { useNavigate } from 'react-router-dom'
 import { buildClient, parseClient, parseAddress, parseContact } from './ContactForm/BuildObjForSend'
+import LoadScreenBlur from '@/components/MyComponents/LoadScreenBlur'
 
-export default function ClientForm({ defaultValues, editMode = false, setLoading }) {
+export default function ClientForm({ defaultValues, editMode = false }) {
 
   // Local State
   const [type, setType] = useState(defaultValues?.type || 'INDIVIDUAL')
@@ -64,6 +65,11 @@ export default function ClientForm({ defaultValues, editMode = false, setLoading
   const [defaultContactForm, setDefaultContactForm] = useState({})
   const [defaultAddressForm, setDefaultAddressForm] = useState({})
   const [pendingChanges, setPendingChanges] = useState([])
+  const [loading, setLoading] = useState({
+    title: '',
+    process: '',
+    state: false
+  })
 
   // Hooks
   const navigate = useNavigate()
@@ -101,7 +107,7 @@ export default function ClientForm({ defaultValues, editMode = false, setLoading
         state: true
       })
 
-      const body = buildClient(data, addresses, contacts, primaryContact, shippingAddress, billingAddress)
+      const body = buildClient(data, addresses, contacts, primaryContact, shippingAddress, billingAddress, type)
 
       const res = await createClientMutation.mutateAsync(body)
 
@@ -141,7 +147,7 @@ export default function ClientForm({ defaultValues, editMode = false, setLoading
 
         case 'modifyClient': {
           setLoading({ title: 'Actualizando cliente...', process: 'Modificando cliente...', state: true })
-          const body = { ...parseClient(change.data), customer_id: clientId }
+          const body = { ...parseClient(change.data, type), customer_id: clientId }
           const res = await modifyClientMutation.mutateAsync({ clientId, data: body })
           if (!res) isError = true
           break
@@ -448,6 +454,10 @@ export default function ClientForm({ defaultValues, editMode = false, setLoading
 
   return (
     <div className='lg:px-5'>
+      {
+        loading.state && <LoadScreenBlur title={loading.title} process={loading.process} />
+      }
+
       <section className='grid grid-cols-12 lg:gap-9 gap-x-0 gap-y-4'>
         <div className='col-span-12 lg:col-span-7 order-2 lg:order-1'>
           <header className='flex justify-between items-center mb-5'>
