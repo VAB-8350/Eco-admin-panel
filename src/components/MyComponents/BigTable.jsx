@@ -155,7 +155,7 @@ export default function BigTable({
                           className={`text-left text-sm h-full relative px-2 py-3 ${i === 0 ? 'pl-4' : ''}`}
                           key={cell.id}
                           style={{
-                            maxWidth: (cell.column.columnDef.size !== 150 ? cell.column.columnDef.size : 'auto')
+                            maxWidth: (cell.column.columnDef.size !== 50 ? cell.column.columnDef.size : 'auto')
                           }}
                         >
                           <span className='flex w-full whitespace-nowrap overflow-hidden text-ellipsis'>
