@@ -7,6 +7,7 @@ import { useQuery, useMutation } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Save, X } from 'lucide-react'
+import LoadScreenBlur from '@/components/MyComponents/LoadScreenBlur'
 
 export default function EditClients() {
   
@@ -41,6 +42,11 @@ export default function EditClients() {
   // Local State
   const [open, setOpen] = useState()
   const [defaultVal, setDefaultVal] = useState(null)
+  const [loading, setLoading] = useState({
+    title: '',
+    process: '',
+    state: false
+  })
 
   useEffect(() => {
 
@@ -111,17 +117,26 @@ export default function EditClients() {
                 Cancelar
               </button>
             </Button>
-            <Button type='submit' className='font-bold w-fit text-md hover:cursor-pointer' form='client-form'>
+            <Button
+              type='submit'
+              className='font-bold w-fit text-md hover:cursor-pointer'
+              form='client-form'
+              onClick={() => setLoading({ title: 'Actualizando cliente...', process: 'Procesando datos.', state: true })}
+            >
               <Save />
               Guardar cliente
             </Button>
           </div>
         </header>
 
+        {
+          loading.state && <LoadScreenBlur title={loading.title} process={loading.process} />
+        }
+
         <ScrollArea className='flex flex-col w-full mx-auto overflow-hidden h-[90%]'>
           {
             (defaultVal && !isError && !isLoading && !isFetching) &&
-            <ClientForm setOpen={setOpen} defaultValues={defaultVal} editMode />
+            <ClientForm setOpen={setOpen} defaultValues={defaultVal} editMode setLoading={setLoading} />
           }
           {
             (!isLoading && isError) && <p>Error al cargar los datos del cliente</p>

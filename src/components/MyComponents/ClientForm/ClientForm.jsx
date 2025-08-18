@@ -44,13 +44,12 @@ import { Truck } from 'lucide-react'
 import { FileText } from 'lucide-react'
 import { provincesAr } from '@/Helpers/RegionsAr'
 import useClientQueries from './useClientQueries'
-import LoadScreenBlur from '@/components/MyComponents/LoadScreenBlur'
 import { toast } from 'sonner'
 import SimpleToast from '@/components/MyComponents/SimpleToast'
 import { useNavigate } from 'react-router-dom'
 import { buildClient, parseClient, parseAddress, parseContact } from './ContactForm/BuildObjForSend'
 
-export default function ClientForm({ defaultValues, editMode = false }) {
+export default function ClientForm({ defaultValues, editMode = false, setLoading }) {
 
   // Local State
   const [type, setType] = useState(defaultValues?.type || 'INDIVIDUAL')
@@ -59,16 +58,11 @@ export default function ClientForm({ defaultValues, editMode = false }) {
   const [openDir, setOpenDir] = useState(false)
   const [openContact, setOpenContact] = useState(false)
   const [primaryContact, setPrimaryContact] = useState(defaultValues?.contacts.find(contact => contact.primary)?.id || null)
-  const [shippingAddress, setShippingAddress] = useState(defaultValues.preferences?.default_shipping_address_id || null)
-  const [billingAddress, setBillingAddress] = useState(defaultValues.preferences?.default_billing_address_id || null)
+  const [shippingAddress, setShippingAddress] = useState(defaultValues?.preferences?.default_shipping_address_id || null)
+  const [billingAddress, setBillingAddress] = useState(defaultValues?.preferences?.default_billing_address_id || null)
   const [errors, setErrors] = useState({})
   const [defaultContactForm, setDefaultContactForm] = useState({})
   const [defaultAddressForm, setDefaultAddressForm] = useState({})
-  const [loading, setLoading] = useState({
-    title: '',
-    process: '',
-    state: false
-  })
   const [pendingChanges, setPendingChanges] = useState([])
 
   // Hooks
@@ -99,7 +93,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
 
     if (editMode) {
       setLoading({ title: 'Actualizando cliente...', process: '', state: true })
-      sendPendingChanges(defaultValues?.id)
+      await sendPendingChanges(defaultValues?.id)
     } else {
       setLoading({
         title: 'Creando cliente...',
@@ -128,43 +122,52 @@ export default function ClientForm({ defaultValues, editMode = false }) {
   }
 
   const sendPendingChanges = async (clientId) => {
+    let isError = false
     for (const change of pendingChanges) {
       switch (change.type) {
-        case 'deleteAddress':
+        case 'deleteAddress': {
           setLoading({ title: 'Actualizando cliente...', process: 'Eliminando dirección...', state: true })
-          await deleteAddressMutation.mutateAsync({ clientId, addressId: change.id })
+          const res = await deleteAddressMutation.mutateAsync({ clientId, addressId: change.id })
+          if (!res) isError = true
           break
+        }
 
-        case 'deleteContact':
+        case 'deleteContact': {
           setLoading({ title: 'Actualizando cliente...', process: 'Eliminando contacto...', state: true })
-          await deleteContactMutation.mutateAsync({ clientId, contactId: change.id })
+          const res = await deleteContactMutation.mutateAsync({ clientId, contactId: change.id })
+          if (!res) isError = true
           break
+        }
 
         case 'modifyClient': {
           setLoading({ title: 'Actualizando cliente...', process: 'Modificando cliente...', state: true })
           const body = { ...parseClient(change.data), customer_id: clientId }
-          await modifyClientMutation.mutateAsync({ clientId, data: body })
+          const res = await modifyClientMutation.mutateAsync({ clientId, data: body })
+          if (!res) isError = true
           break
         }
 
         case 'createAddress': {
           setLoading({ title: 'Actualizando cliente...', process: 'Creando dirección...', state: true })
           const body = parseAddress(change.data, shippingAddress, billingAddress)
-          await createAddressMutation.mutateAsync({ clientId, data: body })
+          const res = await createAddressMutation.mutateAsync({ clientId, data: body })
+          if (!res) isError = true
           break
         }
 
         case 'modifyAddress': {
           setLoading({ title: 'Actualizando cliente...', process: 'Modificando dirección...', state: true })
           const body = parseAddress(change.data, shippingAddress, billingAddress)
-          await modifyAddressMutation.mutateAsync({ clientId, addressId: change.id, data: { ...body, address_id: change.id } })
+          const res = await modifyAddressMutation.mutateAsync({ clientId, addressId: change.id, data: { ...body, address_id: change.id } })
+          if (!res) isError = true
           break
         }
 
         case 'createContact': {
           setLoading({ title: 'Actualizando cliente...', process: 'Creando contacto...', state: true })
           const body = parseContact(change.data, primaryContact)
-          await createContactMutation.mutateAsync({ clientId, data: body })
+          const res = await createContactMutation.mutateAsync({ clientId, data: body })
+          if (!res) isError = true
           break
         }
 
@@ -173,14 +176,16 @@ export default function ClientForm({ defaultValues, editMode = false }) {
           const body = { ...parseContact(change.data, primaryContact), contact_id: change.id }
           const contactMethods = [...body.contact_methods]
           delete body.contact_methods
-          await modifyContactMutation.mutateAsync({ clientId, contactId: change.id, data: body })
+          const res = await modifyContactMutation.mutateAsync({ clientId, contactId: change.id, data: body })
+          if (!res) isError = true
 
           if (contactMethods.length > 0) {
             for (const cm of contactMethods) {
               cm.contact_method_id = cm.id
               delete cm.id
               setLoading({ title: 'Actualizando cliente...', process: 'Actualizando Métodos...', state: true })
-              await modifyContactMethodMutation.mutateAsync({ clientId, contactId: change.id, methodId: cm.contact_method_id, data: cm })
+              const res = await modifyContactMethodMutation.mutateAsync({ clientId, contactId: change.id, methodId: cm.contact_method_id, data: cm })
+              if (!res) isError = true
             }
           }
           break
@@ -190,10 +195,18 @@ export default function ClientForm({ defaultValues, editMode = false }) {
         default:
           break
       }
+      if (isError) break
     }
+
     setLoading({ title: 'Actualizando cliente...', process: 'Confirmando datos...', state: true })
-    await commitClientMutation.mutateAsync(clientId)
-    navigate('/clients')
+    const res = await commitClientMutation.mutateAsync(clientId)
+    if (!res) isError = true
+
+    if (isError) toast(<SimpleToast message='Ups! Ocurrio un error...' state='error' />)
+    else {
+      toast(<SimpleToast message='Cliente actualizado correctamente!' state='success' />)
+      navigate('/clients')
+    }
   }
 
   const validate = () => {
@@ -435,11 +448,6 @@ export default function ClientForm({ defaultValues, editMode = false }) {
 
   return (
     <div className='lg:px-5'>
-
-      {
-        loading.state && <LoadScreenBlur title={loading.title} process={loading.process} />
-      }
-
       <section className='grid grid-cols-12 lg:gap-9 gap-x-0 gap-y-4'>
         <div className='col-span-12 lg:col-span-7 order-2 lg:order-1'>
           <header className='flex justify-between items-center mb-5'>
