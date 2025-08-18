@@ -132,10 +132,13 @@ export default function Clients() {
       }
     },
     {
-      header: 'Direccion',
+      header: 'Dir. Envió',
       enableSorting: false,
+      size: 130,
       cell: ({ row: { original } }) => {
-        const address = original.addresses.find(a => a.isPrimary)
+
+        const shippingAddressId = original?.preferences?.default_shipping_address_id
+        const address = original.addresses.find(a => a.uuid === shippingAddressId)
         const addressAndDepto = `${address.street}${address.additional_info ? ` - ${address.additional_info}` : ''}`
 
         const handleCopy = () => {
@@ -146,11 +149,33 @@ export default function Clients() {
         }
 
         return (
-          <div>
-            <button type='button' title='Copiar dirección' onClick={handleCopy} className='hover:text-green-500 duration-300 outline-none hover:cursor-pointer p-1 underline'>
-              {addressAndDepto}
-            </button>
-          </div>
+          <button type='button' title='Copiar dirección' onClick={handleCopy} className='hover:text-green-500 duration-300 outline-none hover:cursor-pointer p-1 underline w-full overflow-hidden text-ellipsis text-left'>
+            {addressAndDepto}
+          </button>
+        )
+      }
+    },
+    {
+      header: 'Dir. Facturación',
+      enableSorting: false,
+      size: 130,
+      cell: ({ row: { original } }) => {
+
+        const billingAddressId = original?.preferences?.default_billing_address_id
+        const address = original.addresses.find(a => a.uuid === billingAddressId)
+        const addressAndDepto = `${address.street}${address.additional_info ? ` - ${address.additional_info}` : ''}`
+
+        const handleCopy = () => {
+          if (address) {
+            navigator.clipboard.writeText(addressAndDepto)
+            toast(<SimpleToast message='Dirección copiada al portapapeles' state='success' />)
+          }
+        }
+
+        return (
+          <button type='button' title='Copiar dirección' onClick={handleCopy} className='hover:text-green-500 duration-300 outline-none hover:cursor-pointer p-1 underline w-full overflow-hidden text-ellipsis text-left'>
+            {addressAndDepto}
+          </button>
         )
       }
     },
