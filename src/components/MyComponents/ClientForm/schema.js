@@ -10,12 +10,12 @@ export function clientSchema (clientType) {
   switch (clientType) {
     case 'INDIVIDUAL':
       return baseSchema.extend({
-        DNI: z.string().min(8, 'DNI invalido').max(8, 'DNI invalido')
+        DNI: z.string().regex(/^(\d{7,8}|\d{1,2}\.\d{3}\.\d{3})$/, 'DNI inválido')
       })
 
     case 'BUSINESS':
       return baseSchema.extend({
-        CUIT: z.string().min(11, 'CUIT invalido').max(11, 'CUIT invalido')
+        CUIT: z.string().regex(/^(\d{11}|\d{2}-\d{8}-\d{1})$/, 'CUIT inválido')
       })
 
     default:
