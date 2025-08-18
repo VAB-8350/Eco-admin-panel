@@ -51,6 +51,7 @@ export default function EditClients() {
         name: data.customerDetails.firstName ?? data.customerDetails.fantasyName,
         lastName: data.customerDetails.firstSurname ?? data.customerDetails.companyName,
         DNI: data.identificationNumber,
+        CUIT: data.identificationNumber,
         note: data.internalNotes.metadata,
         type: data.customerType,
         preferences: data.preferences,
