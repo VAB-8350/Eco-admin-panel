@@ -129,81 +129,87 @@ export default function ClientForm({ defaultValues, editMode = false }) {
 
   const sendPendingChanges = async (clientId) => {
     let isError = false
-    for (const change of pendingChanges) {
-      switch (change.type) {
-        case 'deleteAddress': {
+    // 1. Eliminar direcciones y contactos
+    const deletePromises = pendingChanges
+      .filter(change => change.type === 'deleteAddress' || change.type === 'deleteContact')
+      .map(change => {
+        if (change.type === 'deleteAddress') {
           setLoading({ title: 'Actualizando cliente...', process: 'Eliminando dirección...', state: true })
-          const res = await deleteAddressMutation.mutateAsync({ clientId, addressId: change.id })
-          if (!res) isError = true
-          break
+          return deleteAddressMutation.mutateAsync({ clientId, addressId: change.id })
         }
-
-        case 'deleteContact': {
+        if (change.type === 'deleteContact') {
           setLoading({ title: 'Actualizando cliente...', process: 'Eliminando contacto...', state: true })
-          const res = await deleteContactMutation.mutateAsync({ clientId, contactId: change.id })
-          if (!res) isError = true
-          break
+          return deleteContactMutation.mutateAsync({ clientId, contactId: change.id })
         }
+      })
 
-        case 'modifyClient': {
-          setLoading({ title: 'Actualizando cliente...', process: 'Modificando cliente...', state: true })
-          const body = { ...parseClient(change.data, type), customer_id: clientId }
-          const res = await modifyClientMutation.mutateAsync({ clientId, data: body })
-          if (!res) isError = true
-          break
-        }
+    const deleteResults = await Promise.all(deletePromises)
+    if (deleteResults.some(res => !res)) isError = true
 
-        case 'createAddress': {
-          setLoading({ title: 'Actualizando cliente...', process: 'Creando dirección...', state: true })
-          const body = parseAddress(change.data, shippingAddress, billingAddress)
-          const res = await createAddressMutation.mutateAsync({ clientId, data: body })
-          if (!res) isError = true
-          break
-        }
-
-        case 'modifyAddress': {
-          setLoading({ title: 'Actualizando cliente...', process: 'Modificando dirección...', state: true })
-          const body = parseAddress(change.data, shippingAddress, billingAddress)
-          const res = await modifyAddressMutation.mutateAsync({ clientId, addressId: change.id, data: { ...body, address_id: change.id } })
-          if (!res) isError = true
-          break
-        }
-
-        case 'createContact': {
-          setLoading({ title: 'Actualizando cliente...', process: 'Creando contacto...', state: true })
-          const body = parseContact(change.data, primaryContact)
-          const res = await createContactMutation.mutateAsync({ clientId, data: body })
-          if (!res) isError = true
-          break
-        }
-
-        case 'modifyContact': {
-          setLoading({ title: 'Actualizando cliente...', process: 'Modificando contacto...', state: true })
-          const body = { ...parseContact(change.data, primaryContact), contact_id: change.id }
-          const contactMethods = [...body.contact_methods]
-          delete body.contact_methods
-          const res = await modifyContactMutation.mutateAsync({ clientId, contactId: change.id, data: body })
-          if (!res) isError = true
-
-          if (contactMethods.length > 0) {
-            for (const cm of contactMethods) {
-              cm.contact_method_id = cm.id
-              delete cm.id
-              setLoading({ title: 'Actualizando cliente...', process: 'Actualizando Métodos...', state: true })
-              const res = await modifyContactMethodMutation.mutateAsync({ clientId, contactId: change.id, methodId: cm.contact_method_id, data: cm })
-              if (!res) isError = true
-            }
-          }
-          break
-        }
-        
-        // Agrega otros tipos si los necesitas
-        default:
-          break
-      }
-      if (isError) break
+    if (isError) {
+      toast(<SimpleToast message='Ups! Ocurrio un error...' state='error' />)
+      return
     }
 
+    // 2. Crear o modificar cliente, direcciones y contactos
+    const modifyPromises = pendingChanges
+      .filter(change => change.type !== 'deleteAddress' && change.type !== 'deleteContact')
+      .map(async change => {
+        switch (change.type) {
+          case 'modifyClient': {
+            setLoading({ title: 'Actualizando cliente...', process: 'Modificando cliente...', state: true })
+            const body = { ...parseClient(change.data, type), customer_id: clientId }
+            return await modifyClientMutation.mutateAsync({ clientId, data: body })
+          }
+          case 'createAddress': {
+            setLoading({ title: 'Actualizando cliente...', process: 'Creando dirección...', state: true })
+            const body = parseAddress(change.data, shippingAddress, billingAddress)
+            return await createAddressMutation.mutateAsync({ clientId, data: body })
+          }
+          case 'modifyAddress': {
+            setLoading({ title: 'Actualizando cliente...', process: 'Modificando dirección...', state: true })
+            const body = parseAddress(change.data, shippingAddress, billingAddress)
+            return await modifyAddressMutation.mutateAsync({ clientId, addressId: change.id, data: { ...body, address_id: change.id } })
+          }
+          case 'createContact': {
+            setLoading({ title: 'Actualizando cliente...', process: 'Creando contacto...', state: true })
+            const body = parseContact(change.data, primaryContact)
+            return await createContactMutation.mutateAsync({ clientId, data: body })
+          }
+          case 'modifyContact': {
+            setLoading({ title: 'Actualizando cliente...', process: 'Modificando contacto...', state: true })
+            const body = { ...parseContact(change.data, primaryContact), contact_id: change.id }
+            const contactMethods = [...body.contact_methods]
+            delete body.contact_methods
+            const res = await modifyContactMutation.mutateAsync({ clientId, contactId: change.id, data: body })
+            if (!res) return false
+
+            // Actualizar métodos de contacto
+            if (contactMethods.length > 0) {
+              const methodResults = await Promise.all(contactMethods.map(async cm => {
+                cm.contact_method_id = cm.id
+                delete cm.id
+                setLoading({ title: 'Actualizando cliente...', process: 'Actualizando Métodos...', state: true })
+                return await modifyContactMethodMutation.mutateAsync({ clientId, contactId: change.id, methodId: cm.contact_method_id, data: cm })
+              }))
+              if (methodResults.some(r => !r)) return false
+            }
+            return true
+          }
+          default:
+            return true
+        }
+      })
+
+    const modifyResults = await Promise.all(modifyPromises)
+    if (modifyResults.some(res => !res)) isError = true
+
+    if (isError) {
+      toast(<SimpleToast message='Ups! Ocurrio un error...' state='error' />)
+      return
+    }
+
+    // Confirmar cambios
     setLoading({ title: 'Actualizando cliente...', process: 'Confirmando datos...', state: true })
     const res = await commitClientMutation.mutateAsync(clientId)
     if (!res) isError = true
