@@ -59,10 +59,11 @@ export default function ClientForm({ defaultValues, editMode = false }) {
   const [openDir, setOpenDir] = useState(false)
   const [openContact, setOpenContact] = useState(false)
   const [primaryContact, setPrimaryContact] = useState(defaultValues?.contacts.find(contact => contact.primary)?.id || null)
-  const [shippingAddress, setShippingAddress] = useState(null)
-  const [billingAddress, setBillingAddress] = useState(null)
+  const [shippingAddress, setShippingAddress] = useState(defaultValues.preferences?.default_shipping_address_id || null)
+  const [billingAddress, setBillingAddress] = useState(defaultValues.preferences?.default_billing_address_id || null)
   const [errors, setErrors] = useState({})
   const [defaultContactForm, setDefaultContactForm] = useState({})
+  const [defaultAddressForm, setDefaultAddressForm] = useState({})
   const [loading, setLoading] = useState({
     title: '',
     process: '',
@@ -81,9 +82,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
     deleteAddressMutation,
     createContactMutation,
     modifyContactMutation,
-    createContactMethodMutation,
     modifyContactMethodMutation,
-    deleteContactMethodMutation,
     deleteContactMutation
   } = useClientQueries()
   const form = useForm({
@@ -152,6 +151,13 @@ export default function ClientForm({ defaultValues, editMode = false }) {
           setLoading({ title: 'Actualizando cliente...', process: 'Creando dirección...', state: true })
           const body = parseAddress(change.data, shippingAddress, billingAddress)
           await createAddressMutation.mutateAsync({ clientId, data: body })
+          break
+        }
+
+        case 'modifyAddress': {
+          setLoading({ title: 'Actualizando cliente...', process: 'Modificando dirección...', state: true })
+          const body = parseAddress(change.data, shippingAddress, billingAddress)
+          await modifyAddressMutation.mutateAsync({ clientId, addressId: change.id, data: { ...body, address_id: change.id } })
           break
         }
 
@@ -243,15 +249,33 @@ export default function ClientForm({ defaultValues, editMode = false }) {
   }
 
   const addAddress = (data) => {
-    // Generar un id único para la dirección
-    const newAddress = { ...data, id: `front-id-${crypto.randomUUID()}` }
-    setAddresses([...addresses, newAddress])
-    if (shippingAddress === null) setShippingAddress(newAddress.id)
-    if (billingAddress === null) setBillingAddress(newAddress.id)
-    setOpenDir(false)
-    // Si está en modo edición, registrar el cambio
-    if (editMode) {
-      upsertChange({ type: 'createAddress', id: newAddress.id, data: newAddress })
+
+    const isEdited = !!data.id
+    if (isEdited) {
+      // Editar address existente
+      const updatedAddresses = addresses.map(address => 
+        address.id === data.id ? { ...address, ...data } : address
+      )
+      setAddresses(updatedAddresses)
+      if (shippingAddress === null) setShippingAddress(updatedAddresses.id)
+      if (billingAddress === null) setBillingAddress(updatedAddresses.id)
+      setOpenDir(false)
+
+      if (editMode && !data.id?.startsWith('front-id-')) {
+        upsertChange({ type: 'modifyAddress', id: data.id, data })
+      }
+
+    } else {
+      // Generar un id único para la dirección
+      const newAddress = { ...data, id: `front-id-${crypto.randomUUID()}` }
+      setAddresses([...addresses, newAddress])
+      if (shippingAddress === null) setShippingAddress(newAddress.id)
+      if (billingAddress === null) setBillingAddress(newAddress.id)
+      setOpenDir(false)
+      // Si está en modo edición, registrar el cambio
+      if (editMode) {
+        upsertChange({ type: 'createAddress', id: newAddress.id, data: newAddress })
+      }
     }
   }
 
@@ -354,6 +378,58 @@ export default function ClientForm({ defaultValues, editMode = false }) {
       type: 'modifyContact',
       id: newPrimaryId,
       data: { ...contacts.find(c => c.id === newPrimaryId), primary: true }
+    })
+  }
+
+  const handleSetBillingAddress = (newBillingId) => {
+    if (!editMode) {
+      setBillingAddress(newBillingId)
+      return
+    }
+
+    const prevBillingId = billingAddress
+    setBillingAddress(newBillingId)
+
+    // Cambiar el anterior a false, si existe
+    if (prevBillingId && prevBillingId !== newBillingId) {
+      upsertChange({
+        type: 'modifyAddress',
+        id: prevBillingId,
+        data: { ...addresses.find(a => a.id === prevBillingId), billingAddress: false }
+      })
+    }
+
+    // Cambiar el nuevo a true
+    upsertChange({
+      type: 'modifyAddress',
+      id: newBillingId,
+      data: { ...addresses.find(a => a.id === newBillingId), billingAddress: true }
+    })
+  }
+
+  const handleSetShippingAddress = (newShippingId) => {
+    if (!editMode) {
+      setShippingAddress(newShippingId)
+      return
+    }
+
+    const prevShippingId = shippingAddress
+    setShippingAddress(newShippingId)
+
+    // Cambiar el anterior a false, si existe
+    if (prevShippingId && prevShippingId !== newShippingId) {
+      upsertChange({
+        type: 'modifyAddress',
+        id: prevShippingId,
+        data: { ...addresses.find(a => a.id === prevShippingId), shippingAddress: false }
+      })
+    }
+
+    // Cambiar el nuevo a true
+    upsertChange({
+      type: 'modifyAddress',
+      id: newShippingId,
+      data: { ...addresses.find(a => a.id === newShippingId), shippingAddress: true }
     })
   }
 
@@ -689,7 +765,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                 <h3 className='text-2xl font-bold'>Direcciones</h3>
                 
                 <DialogTrigger asChild>
-                  <Button className='font-bold hover:cursor-pointer' variant='outline'>
+                  <Button className='font-bold hover:cursor-pointer' variant='outline' onClick={() => setDefaultAddressForm({})}>
                     <span className='hidden lg:flex gap-2 items-center'><Plus className='stroke-3' />Agregar</span>
                     <span className='inline-block lg:hidden'><Plus className='stroke-3' /></span>
                   </Button>
@@ -717,7 +793,7 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                 </DialogDescription> */}
               </DialogHeader>
 
-              <AddAddress submit={addAddress} />
+              <AddAddress submit={addAddress} defaultValues={defaultAddressForm} />
             </DialogContent>
           </Dialog>
 
@@ -759,17 +835,27 @@ export default function ClientForm({ defaultValues, editMode = false }) {
                   <div className='flex items-center gap-2 ml-auto'>
                     <button
                       type='button'
-                      onClick={() => setShippingAddress(address.id)}
+                      onClick={() => handleSetShippingAddress(address.id)}
                       className='hover:cursor-pointer ml-auto opacity-70 hover:opacity-100 hover:text-green-500 transition-opacity duration-200'
                     >
                       <Truck className={`w-5 h-5 ${shippingAddress === address.id ? 'fill-green-500 stroke-green-700' : ''}`} />
                     </button>
                     <button
                       type='button'
-                      onClick={() => setBillingAddress(address.id)}
+                      onClick={() => handleSetBillingAddress(address.id)}
                       className='hover:cursor-pointer ml-auto opacity-70 hover:opacity-100 hover:text-blue-400 transition-opacity duration-200'
                     >
                       <FileText className={`w-5 h-5 ${billingAddress === address.id ? 'fill-blue-400 stroke-blue-800' : ''}`} />
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() => {
+                        setDefaultAddressForm(address)
+                        setOpenDir(true)
+                      }}
+                      className='hover:text-blue-500 hover:cursor-pointer ml-auto transition-colors duration-200'
+                    >
+                      <Pencil className='w-4 h-4' />
                     </button>
                     <button
                       type='button'

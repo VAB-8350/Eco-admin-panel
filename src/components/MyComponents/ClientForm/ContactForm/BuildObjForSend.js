@@ -39,8 +39,10 @@ export function parseAddress(address, shippingAddress, billingAddress) {
     state_province: address.region,
     zip_code: address.zip,
     country_code: address.country,
-    additional_info: address.depto || '',
-    is_primary: address.id === shippingAddress,
+    additional_info: address.dpto || '',
+    is_primary: address.shippingAddress || (address.id === shippingAddress),
+    is_primary_shipping: address.shippingAddress || (address.id === shippingAddress),
+    is_primary_billing: address.billingAddress || (address.id === billingAddress),
     internal_notes: { metadata: address.note || '' },
   }
 }

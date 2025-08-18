@@ -53,6 +53,7 @@ export default function EditClients() {
         DNI: data.identificationNumber,
         note: data.internalNotes.metadata,
         type: data.customerType,
+        preferences: data.preferences,
         addresses: data.addresses.map(address => ({
           id: address.uuid,
           place: address.addressType,
@@ -61,7 +62,9 @@ export default function EditClients() {
           region: address.stateProvince,
           country: address.countryCode,
           zip: address.zipCode,
-          isPrimary: address.isPrimary
+          isPrimary: address.isPrimary,
+          dpto: address.additionalInfo,
+          note: address.internalNotes.metadata,
         })),
         contacts: data.contacts.map(contact => ({
           id: contact.id,

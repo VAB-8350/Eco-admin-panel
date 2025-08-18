@@ -40,7 +40,7 @@ const addressTypes = [
   { value: 'OTHER', label: 'Otro' }
 ]
 
-const defaultValues = {
+const defaultVal = {
   place: '',
   country: 'AR',
   address: '',
@@ -51,18 +51,21 @@ const defaultValues = {
   note: '',
 }
 
-export default function AddAddress({ submit }) {
+export default function AddAddress({ submit, defaultValues }) {
 
   const form = useForm({
     resolver: zodResolver(addressSchema),
-    defaultValues
+    defaultValues: defaultValues.id ? {
+      ...defaultValues,
+      country: defaultVal.country
+    } : defaultVal
   })
 
   const { formState: { isSubmitting } } = form
 
   const onSubmit = async (data) => {
 
-    submit(data)
+    submit({ ...data, id: defaultValues?.id })
 
   }
 
