@@ -172,7 +172,7 @@ export default function BigTable({
           </table>
 
           <span className='inline-block w-full h-[70px] bg-[var(--background)]' />
-          <span className='absolute bottom-0 left-0 inline-block w-full h-[100px] bg-linear-to-b from-transparent to-[var(--background)]' />
+          <span className='absolute bottom-0 left-0 inline-block w-full h-[70px] bg-linear-to-b from-transparent to-[var(--background)]' />
 
           {
             enableLazyLoad &&
