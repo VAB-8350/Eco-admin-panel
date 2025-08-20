@@ -59,7 +59,7 @@ export default function Clients() {
     document.body.style.cursor = 'default'
 
     if (res) {
-      navigate(`/edit-client/${id}`)
+      navigate(`/edit-client/${id}`, { state: { lock: res.data } })
     } else {
       toast(<SimpleToast message='Error al obtener el cliente' state='error' />)
     }
