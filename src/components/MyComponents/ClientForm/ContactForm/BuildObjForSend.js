@@ -36,7 +36,7 @@ export function parseAddress(address, shippingAddress, billingAddress) {
     address_type: address.place,
     street: address.address,
     city: address.city,
-    state_province: address.region,
+    state_province: `${address.country}-${address.region}`,
     zip_code: address.zip,
     country_code: address.country,
     additional_info: address.dpto || '',
