@@ -57,7 +57,8 @@ export default function AddAddress({ submit, defaultValues }) {
     resolver: zodResolver(addressSchema),
     defaultValues: defaultValues.id ? {
       ...defaultValues,
-      country: defaultVal.country
+      country: defaultVal.country,
+      region: defaultValues.region?.replace(`${defaultVal.country}-`, ''),
     } : defaultVal
   })
 
