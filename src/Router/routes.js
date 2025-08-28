@@ -16,7 +16,9 @@ const Sales       = React.lazy(() => import('@/Screens/Sales/Sales'))
 const Team        = React.lazy(() => import('@/Screens/Team/Team'))
 const Client      = React.lazy(() => import('@/Screens/Clients/Clients'))
 const AddClient   = React.lazy(() => import('@/Screens/AddClient/AddClient'))
-const EditClient = React.lazy(() => import('@/Screens/EditClient/EditClient'))
+const EditClient  = React.lazy(() => import('@/Screens/EditClient/EditClient'))
+const Products    = React.lazy(() => import('@/Screens/Products/Products'))
+const AddProduct  = React.lazy(() => import('@/Screens/AddProduct/AddProduct'))
 
 const publicRoutes = [
   {
@@ -61,6 +63,18 @@ const privateRoutes = [
     path: '/edit-client/:id',
     label: 'Edit Client',
     component: EditClient,
+    roles: [ROLE_ADMIN, ROLE_USER]
+  },
+  {
+    path: '/products',
+    label: 'Products',
+    component: Products,
+    roles: [ROLE_ADMIN, ROLE_USER]
+  },
+  {
+    path: '/add-product',
+    label: 'Add Product',
+    component: AddProduct,
     roles: [ROLE_ADMIN, ROLE_USER]
   }
 ]

@@ -21,14 +21,14 @@ import {
   BadgeDollarSign,
   PackagePlus,
   FlaskRound,
-  Bubbles,
   SoapDispenserDroplet,
-  NotebookText,
   UserRoundSearch,
   UserRoundPlus,
   ShieldUser,
   LayoutTemplate
 } from 'lucide-react'
+import { ListMinus } from 'lucide-react'
+import { Blocks } from 'lucide-react'
 
 const data = {
   navMain: [
@@ -52,24 +52,24 @@ const data = {
   ],
   navProduct: [
     {
-      name: 'Materia Prima',
+      name: 'Producto Maestro',
       url: '#',
       icon: FlaskRound,
     },
     {
-      name: 'Bases',
+      name: 'Crear receta',
       url: '#',
-      icon: Bubbles,
+      icon: ListMinus,
     },
     {
       name: 'Productos',
-      url: '#',
+      url: '/products',
       icon: SoapDispenserDroplet,
     },
     {
-      name: 'Catalogo',
+      name: 'Cargar Lote',
       url: '#',
-      icon: NotebookText,
+      icon: Blocks,
     }
   ],
   navClient: [
