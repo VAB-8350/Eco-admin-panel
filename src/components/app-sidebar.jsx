@@ -29,6 +29,7 @@ import {
 } from 'lucide-react'
 import { ListMinus } from 'lucide-react'
 import { Blocks } from 'lucide-react'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 const data = {
   navMain: [
@@ -53,18 +54,28 @@ const data = {
   navProduct: [
     {
       name: 'Producto Maestro',
-      url: '#',
+      url: '/master-products',
       icon: FlaskRound,
     },
     {
-      name: 'Crear receta',
-      url: '#',
-      icon: ListMinus,
+      name: 'Cargar Producto Maestro',
+      url: '/add-master-product',
+      icon: FlaskRound,
     },
     {
       name: 'Productos',
       url: '/products',
       icon: SoapDispenserDroplet,
+    },
+    {
+      name: 'Cargar Producto',
+      url: '/add-product',
+      icon: SoapDispenserDroplet,
+    },
+    {
+      name: 'Crear receta',
+      url: '#',
+      icon: ListMinus,
     },
     {
       name: 'Cargar Lote',
@@ -122,11 +133,13 @@ export function AppSidebar({ ...props }) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <GenericNav title='Ventas' items={data.navVentas} />
-        <GenericNav title='Producto' items={data.navProduct} />
-        <GenericNav title='Clientes' items={data.navClient} />
-        <NavSecondary items={data.navSecondary} className='mt-auto' />
+        <ScrollArea className='max-h-full'>
+          <NavMain items={data.navMain} />
+          <GenericNav title='Ventas' items={data.navVentas} />
+          <GenericNav title='Producto' items={data.navProduct} />
+          <GenericNav title='Clientes' items={data.navClient} />
+          <NavSecondary items={data.navSecondary} className='mt-auto' />
+        </ScrollArea>
       </SidebarContent>
       <SidebarFooter>
         <div className='flex gap-3 my-2 items-center'>

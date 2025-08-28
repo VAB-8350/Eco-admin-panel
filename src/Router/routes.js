@@ -19,6 +19,8 @@ const AddClient   = React.lazy(() => import('@/Screens/AddClient/AddClient'))
 const EditClient  = React.lazy(() => import('@/Screens/EditClient/EditClient'))
 const Products    = React.lazy(() => import('@/Screens/Products/Products'))
 const AddProduct  = React.lazy(() => import('@/Screens/AddProduct/AddProduct'))
+const MasterProducts  = React.lazy(() => import('@/Screens/MasterProducts/MasterProducts'))
+const AddMasterProducts  = React.lazy(() => import('@/Screens/AddMasterProducts/AddMasterProducts'))
 
 const publicRoutes = [
   {
@@ -75,6 +77,18 @@ const privateRoutes = [
     path: '/add-product',
     label: 'Add Product',
     component: AddProduct,
+    roles: [ROLE_ADMIN, ROLE_USER]
+  },
+  {
+    path: '/master-products',
+    label: 'Master Products',
+    component: MasterProducts,
+    roles: [ROLE_ADMIN, ROLE_USER]
+  },
+  {
+    path: '/add-master-product',
+    label: 'Add Master Product',
+    component: AddMasterProducts,
     roles: [ROLE_ADMIN, ROLE_USER]
   }
 ]
