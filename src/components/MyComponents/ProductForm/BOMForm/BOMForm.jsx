@@ -14,6 +14,66 @@ import { useForm } from 'react-hook-form'
 import { useState } from 'react'
 import { Search } from 'lucide-react'
 import BigTable from '@/components/MyComponents/BigTable'
+import SearchItem from '@/components/MyComponents/SearchItem'
+
+const products = [
+  {
+    id: 1,
+    name: 'jabon liquido',
+  },
+  {
+    id: 2,
+    name: 'champu',
+  },
+  {
+    id: 3,
+    name: 'acondicionador',
+  },
+  {
+    id: 4,
+    name: 'jabon liquido',
+  },
+  {
+    id: 5,
+    name: 'champu',
+  },
+  {
+    id: 6,
+    name: 'acondicionador',
+  },
+  {
+    id: 7,
+    name: 'jabon liquido',
+  },
+  {
+    id: 8,
+    name: 'champu',
+  },
+  {
+    id: 9,
+    name: 'acondicionador',
+  },
+  {
+    id: 10,
+    name: 'jabon liquido',
+  },
+  {
+    id: 11,
+    name: 'champu',
+  },
+  {
+    id: 12,
+    name: 'acondicionador',
+  },
+  {
+    id: 13,
+    name: 'jabon liquido',
+  },
+  {
+    id: 14,
+    name: 'champu',
+  }
+]
 
 
 export default function BOMForm({ submit, defaultValues }) {
@@ -88,22 +148,6 @@ export default function BOMForm({ submit, defaultValues }) {
               </FormItem>
             )}
           />
-
-          <FormField
-            control={form.control}
-            name='isActive'
-            render={({ field }) => (
-              <FormItem className='flex items-center gap-2 mt-5'>
-                <FormControl>
-                  <Switch id='isActiveRecipe' checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
-
-                <FormLabel htmlFor='isActiveRecipe' className='inline-block font-bold text-nowrap truncate max-w-full'>Esta activa</FormLabel>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />  
         </div>
 
         <FormField
@@ -122,9 +166,12 @@ export default function BOMForm({ submit, defaultValues }) {
           )}
         />
 
-        <div className='relative flex items-center mt-5'>
+        {/* <div className='relative flex items-center mt-5'>
           <Input type='text' placeholder='Buscar Producto' className='w-full' />
           <Search className='absolute right-3 w-4 h-4 stroke-[var(--primary)]/50' />
+        </div> */}
+        <div className='w-full flex justify-center mt-5'>
+          <SearchItem items={products} onSelect={(item) => console.log(item)} />
         </div>
 
         <BigTable

@@ -71,16 +71,6 @@ const data = {
       name: 'Cargar Producto',
       url: '/add-product',
       icon: SoapDispenserDroplet,
-    },
-    {
-      name: 'Crear receta',
-      url: '#',
-      icon: ListMinus,
-    },
-    {
-      name: 'Cargar Lote',
-      url: '#',
-      icon: Blocks,
     }
   ],
   navClient: [

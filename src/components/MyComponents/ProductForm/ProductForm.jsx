@@ -36,14 +36,11 @@ import BigTable from '@/components/MyComponents/BigTable'
 import { Trash, Pencil, TriangleAlert, Search } from 'lucide-react'
 import CharacteristicForm from '@/components/MyComponents/ProductForm/CharacteristicForm/CharacteristicForm'
 import BOMForm from '@/components/MyComponents/ProductForm/BOMForm/BOMForm'
-import InventoryPolicyForm from '@/components/MyComponents/ProductForm/InventoryPolicyForm/InventoryPolicyForm'
+import SearchItem from '@/components/MyComponents/SearchItem'
 
 export default function ProductForm() {
 
   // Local states
-  const [isActive, setIsActive] = useState(false)
-  const [isAffordable, setIsAffordable] = useState(false)
-  const [isSalable, setIsSalable] = useState(false)
   const [characteristics, setCharacteristics] = useState([
     {
       characteristic: {
@@ -51,6 +48,7 @@ export default function ProductForm() {
         description: ''
       },
       BOM: {
+        id: 1,
         name: 'Nombre de BOM',
         description: '',
         isActive: false,
@@ -83,6 +81,25 @@ export default function ProductForm() {
 
   const columns = [
     {
+      header: 'Activo',
+      enableSorting: false,
+      size: 80,
+      cell: ({ row: { original } }) => (
+        <Switch
+          checked={original.BOM.isActive}
+          onCheckedChange={(checked) => {
+            setCharacteristics((prev) =>
+              prev.map((item) =>
+                item.BOM.id === original.BOM.id
+                  ? { ...item, BOM: { ...item.BOM, isActive: checked } }
+                  : item
+              )
+            )
+          }}
+        />
+      )
+    },
+    {
       header: 'Característica',
       accessorKey: 'characteristic.name',
       enableSorting: false,
@@ -97,10 +114,9 @@ export default function ProductForm() {
         if (original.BOM.name) {
           return (
             <div className='flex items-center gap-2'>
-              <Switch
-                checked={original.BOM.isActive}
-                onCheckedChange={(checked) => console.log(checked)}
-              />
+              <button className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' onClick={() => console.log(original.id)}>
+                <Pencil className='w-4 h-4' />
+              </button>
               <span>{original.BOM.name}</span>
             </div>
           )
@@ -144,29 +160,90 @@ export default function ProductForm() {
     },
   ]
 
+  const products = [
+    {
+      id: 1,
+      name: 'jabon liquido',
+    },
+    {
+      id: 2,
+      name: 'champu',
+    },
+    {
+      id: 3,
+      name: 'acondicionador',
+    },
+    {
+      id: 4,
+      name: 'jabon liquido',
+    },
+    {
+      id: 5,
+      name: 'champu',
+    },
+    {
+      id: 6,
+      name: 'acondicionador',
+    },
+    {
+      id: 7,
+      name: 'jabon liquido',
+    },
+    {
+      id: 8,
+      name: 'champu',
+    },
+    {
+      id: 9,
+      name: 'acondicionador',
+    },
+    {
+      id: 10,
+      name: 'jabon liquido',
+    },
+    {
+      id: 11,
+      name: 'champu',
+    },
+    {
+      id: 12,
+      name: 'acondicionador',
+    },
+    {
+      id: 13,
+      name: 'jabon liquido',
+    },
+    {
+      id: 14,
+      name: 'champu',
+    }
+  ]
+
   return (
     <div className='lg:px-5'>
       <section className='mb-5 flex justify-center'>
         <div className='w-[400px]'>
           <Label className='mb-2'>Producto maestro</Label>
-          <div className='w-full relative flex items-center'>
+          {/* <div className='w-full relative flex items-center'>
             <Input type='text' placeholder='Buscar producto maestro' className='w-full' />
             <Search className='absolute right-3 w-4 h-4 stroke-[var(--primary)]/50' />
-          </div>
+          </div> */}
+          <SearchItem items={products} onSelect={(item) => console.log(item)} />
         </div>
+
       </section>
 
       <Separator />
 
       <section className='my-5'>
         <div className=''>
-          <header className='flex justify-between items-center mb-5'>
+          <header className='flex justify-between items-center mb-3'>
             <h3 className='text-2xl font-bold'>Producto</h3>
           </header>
 
           <Form {...form}>
             <form id='product-form' onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col gap-4' >
-              <div className='grid grid-cols-12 gap-4'>
+              <div className='grid grid-cols-12 gap-4 mb-5'>
 
                 <div className='col-span-3'>
                   <FormField
@@ -311,36 +388,137 @@ export default function ProductForm() {
 
                 <div className='flex gap-10 col-span-6 mt-4'>
                   <div className='flex gap-2 items-center col-span-2'>
-                    <Switch id='isActive' checked={isActive} onCheckedChange={() => setIsActive(!isActive)} />
-                    <Label htmlFor='isActive' className='font-bold text-nowrap'>Esta Activo</Label>
+                    <FormField
+                      control={form.control}
+                      name='isActive'
+                      render={({ field }) => (
+                        <FormItem>
+
+                          <div className='flex gap-2 items-center col-span-2'>
+                            <FormControl>
+                              <Switch id={field.name} checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                            <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Esta Activo</FormLabel>
+                          </div>
+                    
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
 
                   <div className='flex gap-2 items-center col-span-2'>
-                    <Switch id='isAffordable' checked={isAffordable} onCheckedChange={() => setIsAffordable(!isAffordable)} />
-                    <Label htmlFor='isAffordable' className='font-bold text-nowrap'>Es Comprable</Label>
+                    <FormField
+                      control={form.control}
+                      name='isAffordable'
+                      render={({ field }) => (
+                        <FormItem>
+
+                          <div className='flex gap-2 items-center col-span-2'>
+                            <FormControl>
+                              <Switch id={field.name} checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                            <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Es Comprable</FormLabel>
+                          </div>
+                    
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
 
                   <div className='flex gap-2 items-center col-span-2'>
-                    <Switch id='isSalable' checked={isSalable} onCheckedChange={() => setIsSalable(!isSalable)} />
-                    <Label htmlFor='isSalable' className='font-bold text-nowrap'>Es Vendible</Label>
+                    <FormField
+                      control={form.control}
+                      name='isSalable'
+                      render={({ field }) => (
+                        <FormItem>
+
+                          <div className='flex gap-2 items-center col-span-2'>
+                            <FormControl>
+                              <Switch id={field.name} checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                            <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Es Vendible</FormLabel>
+                          </div>
+                    
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
 
               </div>
+
+              <Separator />
+
+              <div>
+                <header className='flex justify-between items-center mb-3'>
+                  <h3 className='text-2xl font-bold'>Política de inventario</h3>
+                </header>
+
+                <div className='grid grid-cols-12 gap-4 mb-5'>
+                  
+                  <div className='col-span-3'>
+                    <FormField
+                      control={form.control}
+                      name='minStock'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Cantidad Mínima en Stock</FormLabel>
+
+                          <FormControl>
+                            <Input id={field.name} type='number' {...field} disabled={isSubmitting} />
+                          </FormControl>
+                    
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className='col-span-3'>
+                    <FormField
+                      control={form.control}
+                      name='orderAmount'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Cantidad Mínima para pedir</FormLabel>
+
+                          <FormControl>
+                            <Input id={field.name} type='number' {...field} disabled={isSubmitting} />
+                          </FormControl>
+                    
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className='col-span-3 mt-7'>
+                    <FormField
+                      control={form.control}
+                      name='sellOutOfStock'
+                      render={({ field }) => (
+                        <FormItem>
+
+                          <div className='flex gap-2 items-center col-span-2'>
+                            <FormControl>
+                              <Switch id={field.name} checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                            <FormLabel htmlFor={field.name} className='inline-block font-bold text-nowrap truncate max-w-full'>Vender sin Stock</FormLabel>
+                          </div>
+                    
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
             </form>
           </Form>
         </div>
-      </section>
-
-      <Separator />
-
-      <section className='my-5'>
-        <header className='flex justify-between items-center mb-2'>
-          <h3 className='text-2xl font-bold'>Política de inventario</h3>
-        </header>
-
-        {/* <InventoryPolicyForm /> */}
-
       </section>
 
       <Separator />

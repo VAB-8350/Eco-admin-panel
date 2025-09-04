@@ -1,4 +1,4 @@
-import { Search, Plus } from 'lucide-react'
+import { Search, Plus, Pencil, Trash, Blocks } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -7,6 +7,7 @@ import BigTable from '@/components/MyComponents/BigTable'
 
 const data = [
   {
+    id: 1,
     name: 'Producto 1',
     amount: 100,
     profile: 'Perfil 1',
@@ -20,16 +21,39 @@ export default function Products() {
       header: 'Nombre',
       accessorKey: 'name',
       enableSorting: false,
+      size: '30%'
     },
     {
-      header: 'Cantidad',
+      header: 'Cantidad total',
       accessorKey: 'amount',
       enableSorting: false,
+      size: '20%'
+    },
+    {
+      header: 'Cantidad de reserva',
+      accessorKey: 'amount',
+      enableSorting: false,
+      size: '100%'
     },
     {
       header: 'Actions',
       enableSorting: false,
-      cell: () => <Link to='/edit-product'><Button variant='link'>Editar</Button></Link>
+      size: 100,
+      cell: ({ row: { original } }) => (
+        <>
+          <button className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' onClick={() => console.log(original.id)} title='Lotes del producto'>
+            <Blocks className='w-4 h-4' />
+          </button>
+
+          <button className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' onClick={() => console.log(original.id)}>
+            <Pencil className='w-4 h-4' />
+          </button>
+
+          <button onClick={() => console.log(original.id)} title='Eliminar cliente' className='text-red-500/50 hover:text-red-500 duration-300 outline-none hover:cursor-pointer p-1'>
+            <Trash className='w-4 h-4' />
+          </button>
+        </>
+      )
     }
   ]
 
