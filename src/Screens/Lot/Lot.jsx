@@ -1,4 +1,4 @@
-import { Search, Plus } from 'lucide-react'
+import { Search, ArrowLeft } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -86,6 +86,13 @@ export default function Lot() {
             <span className='inline-block lg:hidden'><Plus className='stroke-3' /></span>
           </Link>
         </Button> */}
+
+        <Button variant='outline' asChild>
+          <Link to='/products' className='font-bold'>
+            <ArrowLeft />
+            Volver a Productos
+          </Link>
+        </Button>
       </header>
 
       <section className='flex flex-col w-full mx-auto overflow-hidden h-[90%]'>

@@ -33,9 +33,9 @@ export default function MasterProducts() {
       enableSorting: false,
       cell: ({ row: { original } }) => (
         <div className='flex items-center gap-2 justify-end'>
-          <button className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' onClick={() => console.log(original.id)}>
+          <Link to={`/edit-master-product/${original.id}`} className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' onClick={() => console.log(original.id)}>
             <Pencil className='w-4 h-4' />
-          </button>
+          </Link>
 
           <button onClick={() => console.log(original.id)} title='Eliminar cliente' className='text-red-500/50 hover:text-red-500 duration-300 outline-none hover:cursor-pointer p-1'>
             <Trash className='w-4 h-4' />

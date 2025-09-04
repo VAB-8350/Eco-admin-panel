@@ -11,16 +11,19 @@ import {
 const Login = React.lazy(() => import('@/Screens/Login/Login'))
 
 // Private routes
-const Dashboard   = React.lazy(() => import('@/Screens/Dashboard/Dashboard'))
-const Sales       = React.lazy(() => import('@/Screens/Sales/Sales'))
-const Team        = React.lazy(() => import('@/Screens/Team/Team'))
-const Client      = React.lazy(() => import('@/Screens/Clients/Clients'))
-const AddClient   = React.lazy(() => import('@/Screens/AddClient/AddClient'))
-const EditClient  = React.lazy(() => import('@/Screens/EditClient/EditClient'))
-const Products    = React.lazy(() => import('@/Screens/Products/Products'))
-const AddProduct  = React.lazy(() => import('@/Screens/AddProduct/AddProduct'))
-const MasterProducts  = React.lazy(() => import('@/Screens/MasterProducts/MasterProducts'))
+const Dashboard          = React.lazy(() => import('@/Screens/Dashboard/Dashboard'))
+const Sales              = React.lazy(() => import('@/Screens/Sales/Sales'))
+const Team               = React.lazy(() => import('@/Screens/Team/Team'))
+const Client             = React.lazy(() => import('@/Screens/Clients/Clients'))
+const AddClient          = React.lazy(() => import('@/Screens/AddClient/AddClient'))
+const EditClient         = React.lazy(() => import('@/Screens/EditClient/EditClient'))
+const Products           = React.lazy(() => import('@/Screens/Products/Products'))
+const AddProduct         = React.lazy(() => import('@/Screens/AddProduct/AddProduct'))
+const EditProduct        = React.lazy(() => import('@/Screens/EditProduct/EditProduct'))
+const MasterProducts     = React.lazy(() => import('@/Screens/MasterProducts/MasterProducts'))
 const AddMasterProducts  = React.lazy(() => import('@/Screens/AddMasterProducts/AddMasterProducts'))
+const EditMasterProducts = React.lazy(() => import('@/Screens/EditMasterProducts/EditMasterProducts'))
+const Lot                = React.lazy(() => import('@/Screens/Lot/Lot'))
 
 const publicRoutes = [
   {
@@ -80,6 +83,12 @@ const privateRoutes = [
     roles: [ROLE_ADMIN, ROLE_USER]
   },
   {
+    path: '/edit-product/:id',
+    label: 'Edit Product',
+    component: EditProduct,
+    roles: [ROLE_ADMIN, ROLE_USER]
+  },
+  {
     path: '/master-products',
     label: 'Master Products',
     component: MasterProducts,
@@ -89,6 +98,18 @@ const privateRoutes = [
     path: '/add-master-product',
     label: 'Add Master Product',
     component: AddMasterProducts,
+    roles: [ROLE_ADMIN, ROLE_USER]
+  },
+  {
+    path: '/edit-master-product/:id',
+    label: 'Edit Master Product',
+    component: EditMasterProducts,
+    roles: [ROLE_ADMIN, ROLE_USER]
+  },
+  {
+    path: '/lot/:id',
+    label: 'Lotes del producto',
+    component: Lot,
     roles: [ROLE_ADMIN, ROLE_USER]
   }
 ]
