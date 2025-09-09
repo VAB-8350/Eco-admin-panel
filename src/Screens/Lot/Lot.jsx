@@ -1,4 +1,4 @@
-import { Search, ArrowLeft } from 'lucide-react'
+import { Search, ArrowLeft, Plus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -80,19 +80,19 @@ export default function Lot() {
       <header className='flex justify-between flex-row gap-5 h-[10%] lg:h-[15%]'>
         <h1 className='text-2xl lg:text-4xl font-bold'>Nombre del item</h1>
 
-        {/* <Button className='font-bold' asChild>
-          <Link to='/add-product'>
-            <span className='hidden lg:inline-block'>Cargar Producto</span>
-            <span className='inline-block lg:hidden'><Plus className='stroke-3' /></span>
-          </Link>
-        </Button> */}
+        <div className='flex flex-row gap-2'>
+          <Button variant='outline' asChild>
+            <Link to='/products' className='font-bold'>
+              <ArrowLeft />
+              Volver a Productos
+            </Link>
+          </Button>
 
-        <Button variant='outline' asChild>
-          <Link to='/products' className='font-bold'>
-            <ArrowLeft />
-            Volver a Productos
-          </Link>
-        </Button>
+          <Button className='font-bold hover:cursor-pointer'>
+            <span className='hidden lg:inline-block'>Cargar Lote</span>
+            <span className='inline-block lg:hidden'><Plus className='stroke-3' /></span>
+          </Button>
+        </div>
       </header>
 
       <section className='flex flex-col w-full mx-auto overflow-hidden h-[90%]'>
