@@ -4,21 +4,25 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import BigTable from '@/components/MyComponents/BigTable'
 import { Pencil, Trash } from 'lucide-react'
-
-const data = [
-  {
-    id: 1,
-    name: 'Producto 1',
-    description: 'Descripción del producto 1',
-  }
-]
+import { useQuery } from '@tanstack/react-query'
+import useAxiosPrivate from '@/hooks/useAxiosPrivate'
+import ErrorMessage from '@/components/MyComponents/ErrorMessage'
 
 export default function MasterProducts() {
+
+  const axiosPrivate = useAxiosPrivate()
+  const { data: masterProducts, isLoading, isRefetching, isError, error } = useQuery({
+    queryKey: ['masterProducts'],
+    queryFn: async () => {
+      const { data } = await axiosPrivate.get('/v1/inventory/master-products')
+      return data
+    },
+  })
 
   const columns = [
     {
       header: 'Nombre',
-      accessorKey: 'name',
+      accessorKey: 'masterName',
       enableSorting: false,
       size: 300
     },
@@ -33,11 +37,11 @@ export default function MasterProducts() {
       enableSorting: false,
       cell: ({ row: { original } }) => (
         <div className='flex items-center gap-2 justify-end'>
-          <Link to={`/edit-master-product/${original.id}`} className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' onClick={() => console.log(original.id)}>
+          <Link to={`/edit-master-product/${original.masterProductId}`} className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' onClick={() => console.log(original.masterProductId)}>
             <Pencil className='w-4 h-4' />
           </Link>
 
-          <button onClick={() => console.log(original.id)} title='Eliminar cliente' className='text-red-500/50 hover:text-red-500 duration-300 outline-none hover:cursor-pointer p-1'>
+          <button onClick={() => console.log(original.masterProductId)} title='Eliminar cliente' className='text-red-500/50 hover:text-red-500 duration-300 outline-none hover:cursor-pointer p-1'>
             <Trash className='w-4 h-4' />
           </button>
         </div>
@@ -66,15 +70,22 @@ export default function MasterProducts() {
           </div>
         </div>
 
-        <BigTable
-          columns={columns}
-          data={data}
-          // isLoading={isLoading || isRefetching}
-          hoverRow
-          // enableLazyLoad={!isRefetching && hasNextPage}
-          // loadingLazyLoad={hasNextPage && isFetchingNextPage}
-          // handleLazyLoad={fetchNextPage}
-        />
+        {
+          isError && <ErrorMessage message={error.message} />
+        }
+
+        {
+          !isError &&
+          <BigTable
+            columns={columns}
+            data={masterProducts?.content || []}
+            isLoading={isLoading || isRefetching}
+            hoverRow
+            // enableLazyLoad={!isRefetching && hasNextPage}
+            // loadingLazyLoad={hasNextPage && isFetchingNextPage}
+            // handleLazyLoad={fetchNextPage}
+          />
+        }
 
       </section>
     </main>

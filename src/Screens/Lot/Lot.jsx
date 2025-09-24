@@ -3,39 +3,22 @@ import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import BigTable from '@/components/MyComponents/BigTable'
-
-
-const data = [
-  {
-    lote: 12,
-    amount: 100,
-    profile: 'Perfil 1',
-    unitCost: 10,
-    origin: 'Origen 1',
-    createdAt: '2023-01-01',
-    block: false,
-  },
-  {
-    lote: 12,
-    amount: 100,
-    profile: 'Perfil 1',
-    unitCost: 10,
-    origin: 'Origen 1',
-    createdAt: '2023-01-01',
-    block: false,
-  },
-  {
-    lote: 12,
-    amount: 100,
-    profile: 'Perfil 1',
-    unitCost: 10,
-    origin: 'Origen 1',
-    createdAt: '2023-01-01',
-    block: false,
-  }
-]
+import { useParams } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import useAxiosPrivate from '@/hooks/useAxiosPrivate'
+import ErrorMessage from '@/components/MyComponents/ErrorMessage'
 
 export default function Lot() {
+  const { id } = useParams()
+
+  const axiosPrivate = useAxiosPrivate()
+  const { data: lots, isLoading, isRefetching, isError, error } = useQuery({
+    queryKey: ['lots', id],
+    queryFn: async () => {
+      const { data } = await axiosPrivate.get(`/v1/inventory/stock-item/${id}/lots`)
+      return data
+    },
+  })
 
   const columns = [
     {
@@ -103,15 +86,22 @@ export default function Lot() {
           </div>
         </div>
 
-        <BigTable
-          columns={columns}
-          data={data}
-          // isLoading={isLoading || isRefetching}
-          hoverRow
-          // enableLazyLoad={!isRefetching && hasNextPage}
-          // loadingLazyLoad={hasNextPage && isFetchingNextPage}
-          // handleLazyLoad={fetchNextPage}
-        />
+        {
+          isError && <ErrorMessage message={error.message} />
+        }
+
+        {
+          !isError &&
+          <BigTable
+            columns={columns}
+            data={lots?.content || []}
+            isLoading={isLoading || isRefetching}
+            hoverRow
+            // enableLazyLoad={!isRefetching && hasNextPage}
+            // loadingLazyLoad={hasNextPage && isFetchingNextPage}
+            // handleLazyLoad={fetchNextPage}
+          />
+        }
 
       </section>
     </main>
