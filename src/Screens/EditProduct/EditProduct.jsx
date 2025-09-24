@@ -3,11 +3,32 @@ import { Button } from '@/components/ui/button'
 import { Save, X } from 'lucide-react'
 import { useIsMobile } from '@/hooks/use-mobile'
 import ProductForm from '@/components/MyComponents/ProductForm/ProductForm'
+import { useParams } from 'react-router-dom'
+import useAxiosPrivate from '@/hooks/useAxiosPrivate'
+import { useQuery } from '@tanstack/react-query'
 
 export default function AddProduct() {
 
+  const { id } = useParams()
+  
   // Hooks
   const isMobile = useIsMobile()
+  const axiosPrivate = useAxiosPrivate()
+  const { data, isLoading, isError, isFetching } = useQuery({
+    queryKey: ['product', id],
+    queryFn: async () => {
+      const { data } = await axiosPrivate.get(`/api/v1/inventory/items/${id}`)
+      return data
+    },
+    cacheTime: 0,
+    staleTime: 0,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchInterval: false,
+    enabled: !!id,
+  })
+
+  console.log(data)
 
   const goBack = () => {
     const res = confirm('¿Estás seguro que deseas salir? Se perderán los cambios no guardados.')
