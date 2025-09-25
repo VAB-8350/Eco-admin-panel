@@ -37,10 +37,13 @@ import { Trash, Pencil, TriangleAlert, Search } from 'lucide-react'
 import CharacteristicForm from '@/components/MyComponents/ProductForm/CharacteristicForm/CharacteristicForm'
 import BOMForm from '@/components/MyComponents/ProductForm/BOMForm/BOMForm'
 import SearchItem from '@/components/MyComponents/SearchItem'
+import { useQueries } from '@tanstack/react-query'
+import useProductQueries from './useProductQueries'
 
 export default function ProductForm() {
 
   // Local states
+  const [masterProductSelected, setMasterProductSelected] = useState(null)
   const [characteristics, setCharacteristics] = useState([
     {
       characteristic: {
@@ -70,12 +73,24 @@ export default function ProductForm() {
     // resolver: (() => zodResolver(clientSchema(type)))(),
     // defaultValues
   })
+  const { getMasterProducts, getUnits } = useProductQueries()
+  const queries = useQueries({
+    queries: [
+      { queryKey: ['masterProducts', 1], queryFn: getMasterProducts },
+      { queryKey: ['units', 2], queryFn: getUnits },
+      // { queryKey: ['categories', 3], queryFn: fetchPost },
+    ],
+  })
 
+  const masterProducts = queries[0]?.data?.data?.content || []
+  const units = queries[1]?.data?.data || []
   const { formState: { isSubmitting } } = form
 
   //Methods
   const onSubmit = async (data) => {
     // Handle form submission
+    console.log(masterProductSelected)
+    console.log(characteristics)
     console.log(data)
   }
 
@@ -160,77 +175,31 @@ export default function ProductForm() {
     },
   ]
 
-  const products = [
-    {
-      id: 1,
-      name: 'jabon liquido',
-    },
-    {
-      id: 2,
-      name: 'champu',
-    },
-    {
-      id: 3,
-      name: 'acondicionador',
-    },
-    {
-      id: 4,
-      name: 'jabon liquido',
-    },
-    {
-      id: 5,
-      name: 'champu',
-    },
-    {
-      id: 6,
-      name: 'acondicionador',
-    },
-    {
-      id: 7,
-      name: 'jabon liquido',
-    },
-    {
-      id: 8,
-      name: 'champu',
-    },
-    {
-      id: 9,
-      name: 'acondicionador',
-    },
-    {
-      id: 10,
-      name: 'jabon liquido',
-    },
-    {
-      id: 11,
-      name: 'champu',
-    },
-    {
-      id: 12,
-      name: 'acondicionador',
-    },
-    {
-      id: 13,
-      name: 'jabon liquido',
-    },
-    {
-      id: 14,
-      name: 'champu',
-    }
-  ]
-
   return (
     <div className='lg:px-5'>
-      <section className='mb-5 flex justify-center'>
+      <section className='mb-5 flex items-center'>
         <div className='w-[400px]'>
           <Label className='mb-2'>Producto maestro</Label>
           {/* <div className='w-full relative flex items-center'>
             <Input type='text' placeholder='Buscar producto maestro' className='w-full' />
             <Search className='absolute right-3 w-4 h-4 stroke-[var(--primary)]/50' />
           </div> */}
-          <SearchItem items={products} onSelect={(item) => console.log(item)} />
+          <SearchItem
+            items={masterProducts}
+            onSelect={(item) => setMasterProductSelected(item)}
+          />
         </div>
 
+        {masterProductSelected && (
+          <div className='ml-5 flex flex-col justify-center border rounded-xl p-3 max-w-[400px]'>
+            <div className='flex gap-2 '>
+              <span>Producto seleccionado:</span>
+              <span className='font-bold'>{masterProductSelected.masterName}</span>
+            </div>
+            <span title={masterProductSelected.description || 'Sin descripción'} className='text-sm overflow-hidden text-ellipsis text-nowrap w-full text-muted-foreground'>{masterProductSelected.description || 'Sin descripción'}</span>
+            <span className='text-xs text-muted-foreground mt-3'>ID: {masterProductSelected.masterProductId}</span>
+          </div>
+        )}
       </section>
 
       <Separator />
@@ -344,8 +313,11 @@ export default function ProductForm() {
                             </SelectTrigger>
         
                             <SelectContent>
-                              <SelectItem value={'KG'}>Kilogramos</SelectItem>
-                              <SelectItem value={'LT'}>Litros</SelectItem>
+                              {
+                                units.map((unit) => (
+                                  <SelectItem key={unit.uomCode} value={unit.uomCode}>{unit.name}</SelectItem>
+                                ))
+                              }
                             </SelectContent>
                           </Select>
                         </FormControl>

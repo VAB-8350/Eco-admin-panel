@@ -29,7 +29,7 @@ export default function Products() {
       header: 'SKU',
       accessorKey: 'sku',
       enableSorting: false,
-      size: '20%'
+      size: '100%'
     },
     {
       header: 'Actions',

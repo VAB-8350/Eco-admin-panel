@@ -38,19 +38,19 @@ export default function ComboboxDemo({ onSelect, items }) {
           <CommandInput placeholder='Buscar producto' className='h-9' />
           <CommandList>
             <CommandEmpty>no se encontró producto</CommandEmpty>
-            <ScrollArea className='h-[300px]'>
+            <ScrollArea className='max-h-[300px]'>
               <CommandGroup>
                 {items.map((item) => (
                   <CommandItem
-                    key={item.id}
-                    value={item.id}
+                    key={item.masterProductId}
+                    value={item.masterProductId}
                     onSelect={() => {
                       onSelect && onSelect(item)
                       setOpen(false)
                     }}
                   >
-                    <span class='hidden'>{item.id} /</span>
-                    {item.name}
+                    <span class='hidden'>{item.masterProductId} /</span>
+                    {item.masterName}
                   </CommandItem>
                 ))}
               </CommandGroup>

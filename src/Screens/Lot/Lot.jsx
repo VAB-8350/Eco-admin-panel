@@ -1,4 +1,4 @@
-import { Search, ArrowLeft, Plus } from 'lucide-react'
+import { Search, ArrowLeft, Plus, CircleCheck, CircleX } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,17 +23,17 @@ export default function Lot() {
   const columns = [
     {
       header: 'N. Lote',
-      accessorKey: 'lote',
+      accessorKey: 'lotCode',
       enableSorting: false,
     },
     {
       header: 'Cantidad',
-      accessorKey: 'amount',
+      accessorKey: 'currentQuantity',
       enableSorting: false,
     },
     {
       header: 'Perfil',
-      accessorKey: 'profile',
+      accessorKey: 'profile.profileCode',
       enableSorting: false,
     },
     {
@@ -43,18 +43,30 @@ export default function Lot() {
     },
     {
       header: 'Origen',
-      accessorKey: 'origin',
+      accessorKey: 'warehouse.warehouseName',
       enableSorting: false,
     },
     {
       header: 'Fecha de creación',
-      accessorKey: 'createdAt',
+      accessorKey: 'creationDate',
       enableSorting: false,
+      cell: ({ row: { original } }) => (
+        <span>{new Date(original.creationDate).toLocaleDateString('es-AR')}</span>
+      )
     },
     {
-      header: 'Bloquear',
-      accessorKey: 'block',
+      header: 'Estado',
+      accessorKey: 'lotStatus',
       enableSorting: false,
+      cell: ({ row: { original } }) => (
+        <span className={`px-2 py-1 rounded-full text-white text-sm font-semibold ${original.lotStatus === 'ACTIVE' ? 'bg-green-500/80' : 'bg-red-500/80'}`}>
+          {
+            original.lotStatus === 'ACTIVE'
+              ? <div className='flex items-center gap-1'><CircleCheck width={16} height={16} /> Activo</div>
+              : <div className='flex items-center gap-1'><CircleX width={16} height={16} /> Inactivo</div>
+          }
+        </span>
+      )
     },
   ]
 
@@ -84,6 +96,10 @@ export default function Lot() {
             <Input type='text' placeholder='Buscar' className='w-full' />
             <Search className='absolute right-3 w-4 h-4 stroke-[var(--primary)]/50' />
           </div>
+
+          <Button variant='outline' className='ml-4 font-bold hover:cursor-pointer'>
+            Agrupar por Perfil
+          </Button>
         </div>
 
         {
