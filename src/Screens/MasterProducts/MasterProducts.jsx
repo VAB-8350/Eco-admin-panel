@@ -4,20 +4,65 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import BigTable from '@/components/MyComponents/BigTable'
 import { Pencil, Trash } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import useAxiosPrivate from '@/hooks/useAxiosPrivate'
 import ErrorMessage from '@/components/MyComponents/ErrorMessage'
+import { toast } from 'sonner'
+import { useNavigate } from 'react-router-dom'
 
 export default function MasterProducts() {
 
+  // Hooks
+  const navigate = useNavigate()
   const axiosPrivate = useAxiosPrivate()
-  const { data: masterProducts, isLoading, isRefetching, isError, error } = useQuery({
+  const { data: masterProducts, isLoading, refetch, isRefetching, isError, error } = useQuery({
     queryKey: ['masterProducts'],
     queryFn: async () => {
       const { data } = await axiosPrivate.get('/v1/inventory/master-products')
       return data
     },
   })
+
+  const deleteMasterProductMutation = useMutation({
+    mutationFn: async (id) => {
+      const { data } = await axiosPrivate.delete(`/v1/inventory/master-products/${id}/discard`)
+      return data
+    },
+    onSuccess: () => {
+      toast(<SimpleToast message='Producto maestro eliminado correctamente' state='success' />)
+      refetch()
+    },
+    onError: () => {
+      toast(<SimpleToast message='Error al eliminar el producto maestro' state='error' />)
+    }
+  })
+
+  const lockMasterProduct = useMutation({
+    mutationFn: async (id) => {
+      try {
+        return  await axiosPrivate.post(`/v1/inventory/master-products/${id}/lock`)
+      } catch {
+        return false
+      }
+    },
+  })
+
+  const handleDelete = (id) => {
+    const confirm = window.confirm('¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.')
+    if (confirm) deleteMasterProductMutation.mutate(id)
+  }
+
+  const handleEdit = async (id) => {
+    document.body.style.cursor = 'wait'
+    const res = await lockMasterProduct.mutateAsync(id)
+    document.body.style.cursor = 'default'
+
+    if (res) {
+      navigate(`/edit-master-product/${id}`, { state: { lock: res.data } })
+    } else {
+      toast(<SimpleToast message='Error al obtener el producto maestro' state='error' />)
+    }
+  }
 
   const columns = [
     {
@@ -37,13 +82,13 @@ export default function MasterProducts() {
       enableSorting: false,
       cell: ({ row: { original } }) => (
         <div className='flex items-center gap-2 justify-end'>
-          <Link to={`/edit-master-product/${original.masterProductId}`} className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' onClick={() => console.log(original.masterProductId)}>
+          <button className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' onClick={() => handleEdit(original.masterProductId)}>
             <Pencil className='w-4 h-4' />
-          </Link>
-
-          <button onClick={() => console.log(original.masterProductId)} title='Eliminar cliente' className='text-red-500/50 hover:text-red-500 duration-300 outline-none hover:cursor-pointer p-1'>
-            <Trash className='w-4 h-4' />
           </button>
+
+          {/* <button onClick={() => handleDelete(original.masterProductId)} title='Eliminar cliente' className='text-red-500/50 hover:text-red-500 duration-300 outline-none hover:cursor-pointer p-1'>
+            <Trash className='w-4 h-4' />
+          </button> */}
         </div>
       )
     }

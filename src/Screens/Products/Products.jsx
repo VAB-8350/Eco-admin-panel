@@ -37,7 +37,7 @@ export default function Products() {
       size: 100,
       cell: ({ row: { original } }) => (
         <>
-          <Link to={`/lot/${original.itemId}`} className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' onClick={() => console.log(original.itemId)} title='Lotes del producto'>
+          <Link to={`/lot/${original.stockItemId}`} className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' onClick={() => console.log(original.stockItemId)} title='Lotes del producto'>
             <Blocks className='w-4 h-4' />
           </Link>
 

@@ -17,7 +17,7 @@ export default function AddProduct() {
   const { data, isLoading, isError, isFetching } = useQuery({
     queryKey: ['product', id],
     queryFn: async () => {
-      const { data } = await axiosPrivate.get(`/api/v1/inventory/items/${id}`)
+      const { data } = await axiosPrivate.get(`/v1/inventory/items/${id}`)
       return data
     },
     cacheTime: 0,
@@ -27,8 +27,6 @@ export default function AddProduct() {
     refetchInterval: false,
     enabled: !!id,
   })
-
-  console.log(data)
 
   const goBack = () => {
     const res = confirm('¿Estás seguro que deseas salir? Se perderán los cambios no guardados.')
