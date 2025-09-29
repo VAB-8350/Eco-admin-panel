@@ -48,7 +48,7 @@ export default function MasterProductForm({ defaultValues }) {
   const onSubmit = async (data) => {
     // Handle form submission
     if (masterProductId) {
-      setLoading({ title: 'Actualizando cliente...', process: '', state: true })
+      setLoading({ title: 'Actualizando Producto Maestro...', process: '', state: true })
       const res = await editMasterProduct.mutateAsync({ id: masterProductId, data })
       setLoading({ title: '', process: '', state: false })
 
