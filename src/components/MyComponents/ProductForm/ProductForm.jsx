@@ -39,10 +39,13 @@ import BOMForm from '@/components/MyComponents/ProductForm/BOMForm/BOMForm'
 import SearchItem from '@/components/MyComponents/SearchItem'
 import { useQueries } from '@tanstack/react-query'
 import useProductQueries from './useProductQueries'
+import { useMemo } from 'react'
 
-export default function ProductForm() {
+export default function ProductForm({ defaultValue }) {
 
   // Local states
+  const [openBOM, setOpenBOM] = useState(false)
+  const [selectedBOM, setSelectedBOM] = useState(null)
   const [masterProductSelected, setMasterProductSelected] = useState(null)
   const [characteristics, setCharacteristics] = useState([
     {
@@ -92,9 +95,12 @@ export default function ProductForm() {
     console.log(masterProductSelected)
     console.log(characteristics)
     console.log(data)
+
+    if (defaultValue.itemId) console.log('hola')
+
   }
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       header: 'Activo',
       enableSorting: false,
@@ -137,24 +143,16 @@ export default function ProductForm() {
           )
         }
         return (
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant='outline' className='hover:cursor-pointer' size='sm' onClick={() => console.log(original.id)}>
-                <TriangleAlert className='stroke-amber-500' /> Asignar receta
-              </Button>
-            </DialogTrigger>
-
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Asignar Receta</DialogTitle>
-                <DialogDescription>
-                  Completa los campos a continuación para asignar una receta.
-                </DialogDescription>
-              </DialogHeader>
-
-              <BOMForm />
-            </DialogContent>
-          </Dialog>
+          <Button
+            variant='outline'
+            className='hover:cursor-pointer'
+            size='sm'
+            onClick={() => {
+              setSelectedBOM(original.BOM)
+              setOpenBOM(true)
+            }}>
+            <TriangleAlert className='stroke-amber-500' /> Asignar receta
+          </Button>
         )
       }
     },
@@ -173,7 +171,7 @@ export default function ProductForm() {
         </>
       )
     },
-  ]
+  ], [])
 
   return (
     <div className='lg:px-5'>
@@ -185,6 +183,8 @@ export default function ProductForm() {
             <Search className='absolute right-3 w-4 h-4 stroke-[var(--primary)]/50' />
           </div> */}
           <SearchItem
+            idKey='masterProductId'
+            nameKey='masterName'
             items={masterProducts}
             onSelect={(item) => setMasterProductSelected(item)}
           />
@@ -526,6 +526,18 @@ export default function ProductForm() {
           // handleLazyLoad={fetchNextPage}
         />
       </section>
+
+      <Dialog open={openBOM} onOpenChange={setOpenBOM}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Asignar Receta</DialogTitle>
+            <DialogDescription>
+              Completa los campos a continuación para asignar una receta.
+            </DialogDescription>
+          </DialogHeader>
+          <BOMForm defaultValues={selectedBOM} submit={(data) => {console.log(data); setOpenBOM(false)}} />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

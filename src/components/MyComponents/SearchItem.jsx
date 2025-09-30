@@ -17,11 +17,11 @@ import {
 } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
-export default function ComboboxDemo({ onSelect, items }) {
+export default function ComboboxDemo({ onSelect, items, idKey = 'id', nameKey = 'name' }) {
   const [open, setOpen] = React.useState(false)
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} className='z-50'>
       <PopoverTrigger asChild>
         <Button
           variant='outline'
@@ -34,7 +34,7 @@ export default function ComboboxDemo({ onSelect, items }) {
         </Button>
       </PopoverTrigger>
       <PopoverContent className='w-[400px] p-0'>
-        <Command>
+        <Command className='z-50'>
           <CommandInput placeholder='Buscar producto' className='h-9' />
           <CommandList>
             <CommandEmpty>no se encontró producto</CommandEmpty>
@@ -42,15 +42,15 @@ export default function ComboboxDemo({ onSelect, items }) {
               <CommandGroup>
                 {items.map((item) => (
                   <CommandItem
-                    key={item.masterProductId}
-                    value={item.masterProductId}
+                    key={item[idKey]}
+                    value={item[idKey]}
                     onSelect={() => {
                       onSelect && onSelect(item)
                       setOpen(false)
                     }}
                   >
-                    <span class='hidden'>{item.masterProductId} /</span>
-                    {item.masterName}
+                    <span className='hidden'>{item[idKey]} /</span>
+                    {item[nameKey]}
                   </CommandItem>
                 ))}
               </CommandGroup>

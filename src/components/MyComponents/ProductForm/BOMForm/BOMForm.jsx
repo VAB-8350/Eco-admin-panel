@@ -15,102 +15,45 @@ import { useState } from 'react'
 import { Search } from 'lucide-react'
 import BigTable from '@/components/MyComponents/BigTable'
 import SearchItem from '@/components/MyComponents/SearchItem'
-
-const products = [
-  {
-    id: 1,
-    name: 'jabon liquido',
-  },
-  {
-    id: 2,
-    name: 'champu',
-  },
-  {
-    id: 3,
-    name: 'acondicionador',
-  },
-  {
-    id: 4,
-    name: 'jabon liquido',
-  },
-  {
-    id: 5,
-    name: 'champu',
-  },
-  {
-    id: 6,
-    name: 'acondicionador',
-  },
-  {
-    id: 7,
-    name: 'jabon liquido',
-  },
-  {
-    id: 8,
-    name: 'champu',
-  },
-  {
-    id: 9,
-    name: 'acondicionador',
-  },
-  {
-    id: 10,
-    name: 'jabon liquido',
-  },
-  {
-    id: 11,
-    name: 'champu',
-  },
-  {
-    id: 12,
-    name: 'acondicionador',
-  },
-  {
-    id: 13,
-    name: 'jabon liquido',
-  },
-  {
-    id: 14,
-    name: 'champu',
-  }
-]
-
+import { useQuery } from '@tanstack/react-query'
+import useAxiosPrivate from '@/hooks/useAxiosPrivate'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
+import { useMemo } from 'react'
 
 export default function BOMForm({ submit, defaultValues }) {
 
   // Local state
-  const [selectedProducts, setSelectedProducts] = useState([
-    {
-      product: {
-        name: 'Jabon liquido',
-        unit: 'LT'
-      },
-      amount: 1
-    },
-    {
-      product: {
-        name: 'Detergente',
-        unit: 'LT'
-      },
-      amount: 2
-    }
-  ])
+  const axiosPrivate = useAxiosPrivate()
+  const [selectedProducts, setSelectedProducts] = useState([])
 
   // Hooks
+  const { data: products, isLoading, isFetching } = useQuery({
+    queryKey: ['products'],
+    queryFn: async () => {
+      const response = await axiosPrivate.get('/v1/inventory/items')
+      return response.data.content
+    }
+  })
   const form = useForm()
 
   const { formState: { isSubmitting } } = form
 
   const onSubmit = async (data) => {
 
-    submit({ ...data, id: defaultValues?.id })
+    submit({ ...data, id: defaultValues?.id, selectedProducts })
 
   }
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       header: 'Product',
-      accessorKey: 'product.name',
+      accessorKey: 'itemName',
       enableSorting: false,
       size: '100%',
     },
@@ -119,14 +62,32 @@ export default function BOMForm({ submit, defaultValues }) {
       enableSorting: false,
       cell: ({ row: { original } }) => {
         return (
-          <div className='flex items-center gap-2'>
-            <Input type='number' min={1} defaultValue={1} className='w-16 m-2 h-7' />
-            <span>{original.product.unit}</span>
-          </div>
+          <FormField
+            control={form.control}
+            name={`quantities.${original.itemId}`}
+            render={({ field }) => (
+              <FormItem className='w-full'>
+                      
+                <FormControl>
+                  <Input
+                    id={field.name}
+                    {...field}
+                    disabled={isSubmitting}
+                    min={1}
+                    defaultValue={1}
+                    className='w-16 m-2 h-7'
+                    type='number'
+                  />
+                </FormControl>
+                      
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         )
       }
     }
-  ]
+  ], [])
 
   return (
     <Form {...form}>
@@ -170,18 +131,65 @@ export default function BOMForm({ submit, defaultValues }) {
           <Input type='text' placeholder='Buscar Producto' className='w-full' />
           <Search className='absolute right-3 w-4 h-4 stroke-[var(--primary)]/50' />
         </div> */}
-        <div className='w-full flex justify-center mt-5'>
-          <SearchItem items={products} onSelect={(item) => console.log(item)} />
+        <div className='w-full flex flex-col justify-center mt-5'>
+          {/* {
+            (products && !isLoading && !isFetching) &&
+            <SearchItem items={products} idKey='itemId' nameKey='itemName' onSelect={(item) => setSelectedProducts([...selectedProducts, item])} />
+          } */}
+          
+          <Input type='text' placeholder='Buscar Producto' />
+
+          <FormField
+            control={form.control}
+            name='category'
+            render={({ field }) => (
+              <FormItem>
+
+                <FormControl>
+                  <Select
+                    // onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    onValueChange={(value) => {
+                      field.onChange(value)
+                      const product = products.find(p => p.itemId === value)
+                      if (product && !selectedProducts.find(p => p.itemId === product.itemId)) {
+                        setSelectedProducts([...selectedProducts, product])
+                      }
+                    }}
+                  >
+                    <SelectTrigger className='w-full'>
+                      <SelectValue placeholder='Productos' />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      {
+                        !isFetching && !isLoading &&
+                        products?.map((product) => (
+                          <SelectItem key={product.itemId} value={product.itemId}>{product.itemName}</SelectItem>
+                        ))
+                      }
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
         </div>
 
-        <BigTable
-          columns={columns}
-          data={selectedProducts}
-          hoverRow
-          // enableLazyLoad={!isRefetching && hasNextPage}
-          // loadingLazyLoad={hasNextPage && isFetchingNextPage}
-          // handleLazyLoad={fetchNextPage}
-        />
+        {
+          selectedProducts?.length > 0 &&
+          <BigTable
+            columns={columns}
+            data={selectedProducts}
+            hoverRow
+            // enableLazyLoad={!isRefetching && hasNextPage}
+            // loadingLazyLoad={hasNextPage && isFetchingNextPage}
+            // handleLazyLoad={fetchNextPage}
+          />
+        }
     
         <Button type='submit' className='font-bold w-fit self-end' disabled={isSubmitting}>
           Agregar

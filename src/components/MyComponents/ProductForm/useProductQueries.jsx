@@ -15,8 +15,6 @@ export default function useProductQueries() {
     return response
   }
 
-
-
   return {
     getMasterProducts,
     getUnits

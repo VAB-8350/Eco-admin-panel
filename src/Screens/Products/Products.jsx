@@ -3,12 +3,17 @@ import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import BigTable from '@/components/MyComponents/BigTable'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import useAxiosPrivate from '@/hooks/useAxiosPrivate'
 import ErrorMessage from '@/components/MyComponents/ErrorMessage'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
+import SimpleToast from '@/components/MyComponents/SimpleToast'
 
 export default function Products() {
 
+  //Hooks
+  const navigate = useNavigate()
   const axiosPrivate = useAxiosPrivate()
   const { data: products, isLoading, isRefetching, isError, error } = useQuery({
     queryKey: ['products'],
@@ -17,6 +22,28 @@ export default function Products() {
       return data
     },
   })
+
+  const LockProduct = useMutation({
+    mutationFn: async (id) => {
+      try {
+        return  await axiosPrivate.post(`/v1/inventory/items/${id}/lock`)
+      } catch {
+        return false
+      }
+    },
+  })
+  
+  const handleEdit = async (id) => {
+    document.body.style.cursor = 'wait'
+    const res = await LockProduct.mutateAsync(id)
+    document.body.style.cursor = 'default'
+
+    if (res) {
+      navigate(`/edit-product/${id}`, { state: { lock: res.data } })
+    } else {
+      toast(<SimpleToast message='Error al obtener el producto' state='error' />)
+    }
+  }
 
   const columns = [
     {
@@ -41,9 +68,9 @@ export default function Products() {
             <Blocks className='w-4 h-4' />
           </Link>
 
-          <Link to={`/edit-product/${original.itemId}`} className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' onClick={() => console.log(original.itemId)}>
+          <button onClick={() => handleEdit(original.itemId)} className='hover:text-blue-500 duration-300 outline-none hover:cursor-pointer p-1' >
             <Pencil className='w-4 h-4' />
-          </Link>
+          </button>
 
           <button onClick={() => console.log(original.itemId)} title='Eliminar cliente' className='text-red-500/50 hover:text-red-500 duration-300 outline-none hover:cursor-pointer p-1'>
             <Trash className='w-4 h-4' />
